@@ -1,0 +1,131 @@
+{
+  "store_name": "주문돌이 버거 하우스",
+  "currency": "KRW",
+  "categories": ["추천/할인", "버거", "세트", "사이드", "음료"],
+  "menus": [
+    {
+      "id": "b01",
+      "category": "추천/할인",
+      "name": "클래식 비프버거",
+      "price": 5500,
+      "discount_price": 4500,
+      "description": "정통 소고기 패티와 신선한 야채가 어우러진 기본에 충실한 버거",
+      "ingredients": ["소고기 패티", "양상추", "토마토", "피클", "특제소스"],
+      "origin": "소고기: 호주산, 야채: 국산",
+      "is_hot": false,
+      "tags": ["베스트", "할인중", "인기"]
+    },
+    {
+      "id": "b02",
+      "category": "버거",
+      "name": "콰트로 치즈 큐브 버거",
+      "price": 8900,
+      "description": "네 가지 치즈가 큐브 형태로 들어가 풍미가 일품인 프리미엄 버거",
+      "ingredients": ["소고기 패티", "체다치즈", "모짜렐라치즈", "고다치즈", "까망베르치즈"],
+      "origin": "소고기: 미국산, 치즈: 뉴질랜드산",
+      "is_hot": false,
+      "tags": ["치즈폭탄", "시그니처"]
+    },
+    {
+      "id": "b03",
+      "category": "버거",
+      "name": "매콤 통살 치킨버거",
+      "price": 6800,
+      "description": "두툼한 닭다리 살을 통째로 튀겨 매콤한 소스를 곁들인 버거",
+      "ingredients": ["닭다리살 패티", "할라피뇨", "매콤마요소스", "양파"],
+      "origin": "닭고기: 국산",
+      "is_hot": true,
+      "tags": ["매콤", "든든"]
+    },
+    {
+      "id": "s01",
+      "category": "세트",
+      "name": "주문돌이 실용 세트",
+      "price": 10500,
+      "discount_price": 8900,
+      "description": "클래식 비프버거 + 감자튀김 + 콜라 구성의 알뜰한 세트",
+      "ingredients": ["클래식 비프버거", "감자튀김(M)", "콜라(M)"],
+      "origin": "메뉴별 원산지 참조",
+      "is_hot": false,
+      "tags": ["가성비", "할인중"]
+    },
+    {
+      "id": "sd01",
+      "category": "사이드",
+      "name": "바삭 감자튀김",
+      "price": 2200,
+      "description": "겉은 바삭하고 속은 촉촉한 소금기 적은 건강한 감자튀김",
+      "ingredients": ["감자", "식물성유", "천일염"],
+      "origin": "감자: 미국산",
+      "is_hot": false,
+      "tags": ["기본", "짭짤"]
+    },
+    {
+      "id": "sd02",
+      "category": "사이드",
+      "name": "쫀득 치즈스틱",
+      "price": 2500,
+      "description": "쭉 늘어나는 재미가 있는 고소한 모짜렐라 치즈스틱(2조각)",
+      "ingredients": ["모짜렐라치즈", "빵가루"],
+      "origin": "치즈: 국산",
+      "is_hot": false,
+      "tags": ["간식", "인기"]
+    },
+    {
+      "id": "sd03",
+      "category": "사이드",
+      "name": "바삭 치킨너겟",
+      "price": 3500,
+      "description": "아이들도 좋아하는 부드러운 순살 치킨너겟(4조각)",
+      "ingredients": ["닭고기 혼합육", "마늘가루"],
+      "origin": "닭고기: 국산",
+      "is_hot": false,
+      "tags": ["아이들간식"]
+    },
+    {
+      "id": "d01",
+      "category": "음료",
+      "name": "시원한 콜라",
+      "price": 2000,
+      "description": "버거와 찰떡궁합인 시원한 탄산음료",
+      "ingredients": ["탄산수", "시럽"],
+      "origin": "해당 없음",
+      "is_hot": false,
+      "tags": ["필수"]
+    },
+    {
+      "id": "d02",
+      "category": "음료",
+      "name": "따뜻한 보리차",
+      "price": 1500,
+      "description": "탄산을 못 드시는 시니어 분들을 위한 고소하고 따뜻한 차",
+      "ingredients": ["볶은 보리", "정제수"],
+      "origin": "보리: 국산",
+      "is_hot": true,
+      "tags": ["시니어추천", "따뜻"]
+    },
+    {
+      "id": "d03",
+      "category": "음료",
+      "name": "달콤한 오렌지 주스",
+      "price": 3000,
+      "description": "비타민C가 풍부한 100% 농축 오렌지 주스",
+      "ingredients": ["오렌지 농축액"],
+      "origin": "오렌지: 스페인산",
+      "is_hot": false,
+      "tags": ["건강"]
+    },
+    {
+      "id": "b04",
+      "category": "버거",
+      "name": "새우 탱글 버거",
+      "price": 7200,
+      "description": "진짜 새우 살이 씹히는 패티와 고소한 타르타르 소스의 만남",
+      "ingredients": ["새우 패티", "타르타르 소스", "양상추"],
+      "origin": "새우: 베트남산",
+      "is_hot": false,
+      "tags": ["해산물", "깔끔"]
+    }
+  ]
+}
+

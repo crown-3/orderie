@@ -1,0 +1,32 @@
+{
+  "node": {
+    "00b03425df2435d6be4a3be90bb4e2a8acc1c5e7a2": {
+      "workers": {
+        "app/login/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fdata%2Fdata%2Fcom.termux%2Ffiles%2Fhome%2Frepos%2Forderie%2Fapp%2Factions%2Fauth.ts%22%2C%5B%7B%22id%22%3A%2200b03425df2435d6be4a3be90bb4e2a8acc1c5e7a2%22%2C%22exportedName%22%3A%22logout%22%2C%22filename%22%3A%22app%2Factions%2Fauth.ts%22%7D%2C%7B%22id%22%3A%226017b69c9f39fb4182f6b54c31b30a960f596d9f94%22%2C%22exportedName%22%3A%22login%22%2C%22filename%22%3A%22app%2Factions%2Fauth.ts%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/login/page": "action-browser"
+      },
+      "filename": "app/actions/auth.ts",
+      "exportedName": "logout"
+    },
+    "6017b69c9f39fb4182f6b54c31b30a960f596d9f94": {
+      "workers": {
+        "app/login/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fdata%2Fdata%2Fcom.termux%2Ffiles%2Fhome%2Frepos%2Forderie%2Fapp%2Factions%2Fauth.ts%22%2C%5B%7B%22id%22%3A%2200b03425df2435d6be4a3be90bb4e2a8acc1c5e7a2%22%2C%22exportedName%22%3A%22logout%22%2C%22filename%22%3A%22app%2Factions%2Fauth.ts%22%7D%2C%7B%22id%22%3A%226017b69c9f39fb4182f6b54c31b30a960f596d9f94%22%2C%22exportedName%22%3A%22login%22%2C%22filename%22%3A%22app%2Factions%2Fauth.ts%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/login/page": "action-browser"
+      },
+      "filename": "app/actions/auth.ts",
+      "exportedName": "login"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "cqjURPrKKN/e5MrCZOhMo++r5DBgpgOboea8NszJht0="
+}
