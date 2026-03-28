@@ -1,9 +1,42 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { VoiceStatus } from "@/_hooks/useRealtimeVoice";
 import { useIdleAnimation } from "./hooks/useIdleAnimation";
 import Face from "./components/face";
 import { SpeakerWaveIcon } from "@heroicons/react/20/solid";
+
+/**
+ * Keeps the last non-empty chunks visible for `fadeMs` after the source goes
+ * empty, so a fade-out animation can play before the element is removed.
+ */
+function useTranscriptDisplay(chunks: string[], fadeMs = 500) {
+  const [display, setDisplay] = useState<string[]>([]);
+  const [fading, setFading] = useState(false);
+  const hasContentRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (chunks.length > 0) {
+      if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+      setDisplay(chunks);
+      setFading(false);
+      hasContentRef.current = true;
+    } else if (hasContentRef.current) {
+      hasContentRef.current = false;
+      setFading(true);
+      timerRef.current = setTimeout(() => {
+        setDisplay([]);
+        setFading(false);
+        timerRef.current = null;
+      }, fadeMs);
+    }
+  }, [chunks]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
+
+  return { display, fading };
+}
 
 interface CharacterSectionProps {
   status: VoiceStatus;
@@ -47,16 +80,19 @@ const CharacterSection = ({
   const { faceOffset, pupilX } = useIdleAnimation();
   const isActive = status === "connected" || status === "connecting";
 
-  const aiTextLong = transcriptChunks.join("").length > TEXT_LONG_THRESHOLD;
-  const userTextLong = userTranscriptChunks.join("").length > TEXT_LONG_THRESHOLD;
+  const { display: aiDisplay, fading: aiFading } = useTranscriptDisplay(transcriptChunks);
+  const { display: userDisplay, fading: userFading } = useTranscriptDisplay(userTranscriptChunks);
+
+  const aiTextLong = aiDisplay.join("").length > TEXT_LONG_THRESHOLD;
+  const userTextLong = userDisplay.join("").length > TEXT_LONG_THRESHOLD;
 
   const aiClipHeight = aiTextLong ? LINE_HEIGHT_LONG : LINE_HEIGHT_SHORT;
   const userClipHeight = userTextLong ? LINE_HEIGHT_LONG : LINE_HEIGHT_SHORT;
 
   return (
     <section className="w-full h-full relative flex justify-center items-center bg-[#E87F07]">
-      {transcriptChunks.length > 0 && (
-        <div className="absolute top-0 w-full h-[335px] z-30">
+      {aiDisplay.length > 0 && (
+        <div className={`absolute top-0 w-full h-[335px] z-30 ${aiFading ? "animate-fade-out" : ""}`}>
           {/* Gradient background */}
           <div
             className="absolute inset-0 animate-fade-top-to-bottom"
@@ -82,11 +118,8 @@ const CharacterSection = ({
                 className="font-bold leading-tight tracking-tight transition-[font-size] duration-300 ease-out"
                 style={{ fontSize: aiTextLong ? "36px" : "48px" }}
               >
-                {transcriptChunks.map((chunk, i) => (
-                  <span
-                    key={i}
-                    className="inline-block whitespace-pre animate-text-slide-fade-in"
-                  >
+                {aiDisplay.map((chunk, i) => (
+                  <span key={i} className="inline-block whitespace-pre animate-text-slide-fade-in">
                     {chunk}
                   </span>
                 ))}
@@ -111,8 +144,8 @@ const CharacterSection = ({
         </div>
       )}
 
-      {userTranscriptChunks.length > 0 && (
-        <div className="absolute bottom-0 w-full h-[335px] flex flex-col justify-end items-end z-30">
+      {userDisplay.length > 0 && (
+        <div className={`absolute bottom-0 w-full h-[335px] flex flex-col justify-end items-end z-30 ${userFading ? "animate-fade-out" : ""}`}>
           {/* Gradient background */}
           <div
             className="absolute inset-0 animate-fade-bottom-to-top"
@@ -129,10 +162,7 @@ const CharacterSection = ({
                 <div className="absolute w-3 h-3 rounded-full bg-[#000] animate-ping" />
                 <div className="absolute w-3 h-3 rounded-full bg-[#000]" />
               </div>
-
-              <p className="font-bold text-2xl">
-                주문돌이가 당신의 말을 듣고 있어요
-              </p>
+              <p className="font-bold text-2xl">주문돌이가 당신의 말을 듣고 있어요</p>
             </div>
 
             {/* Flexible clip: grows with text up to 4 lines, then clips from top */}
@@ -140,18 +170,12 @@ const CharacterSection = ({
               className="overflow-hidden flex flex-col justify-end mr-7 mb-6 w-5/6"
               style={{ maxHeight: `${userClipHeight}px` }}
             >
+              {/* Single accumulated string — no inline-block so it wraps naturally */}
               <p
-                className="text-right font-bold leading-tight tracking-tight transition-[font-size] duration-300 ease-out"
+                className="text-right font-bold leading-tight tracking-tight whitespace-pre-wrap break-words transition-[font-size] duration-300 ease-out animate-text-slide-fade-in"
                 style={{ fontSize: userTextLong ? "36px" : "48px" }}
               >
-                {userTranscriptChunks.map((chunk, i) => (
-                  <span
-                    key={i}
-                    className="inline-block whitespace-pre animate-text-slide-fade-in"
-                  >
-                    {chunk}
-                  </span>
-                ))}
+                {userDisplay.join("")}
               </p>
             </div>
           </div>

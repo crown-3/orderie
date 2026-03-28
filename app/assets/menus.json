@@ -1,131 +1,436 @@
-{
-  "store_name": "주문돌이 버거 하우스",
-  "currency": "KRW",
-  "categories": ["추천/할인", "버거", "세트", "사이드", "음료"],
-  "menus": [
-    {
-      "id": "b01",
-      "category": "추천/할인",
-      "name": "클래식 비프버거",
-      "price": 5500,
-      "discount_price": 4500,
-      "description": "정통 소고기 패티와 신선한 야채가 어우러진 기본에 충실한 버거",
-      "ingredients": ["소고기 패티", "양상추", "토마토", "피클", "특제소스"],
-      "origin": "소고기: 호주산, 야채: 국산",
-      "is_hot": false,
-      "tags": ["베스트", "할인중", "인기"]
-    },
-    {
-      "id": "b02",
-      "category": "버거",
-      "name": "콰트로 치즈 큐브 버거",
-      "price": 8900,
-      "description": "네 가지 치즈가 큐브 형태로 들어가 풍미가 일품인 프리미엄 버거",
-      "ingredients": ["소고기 패티", "체다치즈", "모짜렐라치즈", "고다치즈", "까망베르치즈"],
-      "origin": "소고기: 미국산, 치즈: 뉴질랜드산",
-      "is_hot": false,
-      "tags": ["치즈폭탄", "시그니처"]
-    },
-    {
-      "id": "b03",
-      "category": "버거",
-      "name": "매콤 통살 치킨버거",
-      "price": 6800,
-      "description": "두툼한 닭다리 살을 통째로 튀겨 매콤한 소스를 곁들인 버거",
-      "ingredients": ["닭다리살 패티", "할라피뇨", "매콤마요소스", "양파"],
-      "origin": "닭고기: 국산",
-      "is_hot": true,
-      "tags": ["매콤", "든든"]
-    },
-    {
-      "id": "s01",
-      "category": "세트",
-      "name": "주문돌이 실용 세트",
-      "price": 10500,
-      "discount_price": 8900,
-      "description": "클래식 비프버거 + 감자튀김 + 콜라 구성의 알뜰한 세트",
-      "ingredients": ["클래식 비프버거", "감자튀김(M)", "콜라(M)"],
-      "origin": "메뉴별 원산지 참조",
-      "is_hot": false,
-      "tags": ["가성비", "할인중"]
-    },
-    {
-      "id": "sd01",
-      "category": "사이드",
-      "name": "바삭 감자튀김",
-      "price": 2200,
-      "description": "겉은 바삭하고 속은 촉촉한 소금기 적은 건강한 감자튀김",
-      "ingredients": ["감자", "식물성유", "천일염"],
-      "origin": "감자: 미국산",
-      "is_hot": false,
-      "tags": ["기본", "짭짤"]
-    },
-    {
-      "id": "sd02",
-      "category": "사이드",
-      "name": "쫀득 치즈스틱",
-      "price": 2500,
-      "description": "쭉 늘어나는 재미가 있는 고소한 모짜렐라 치즈스틱(2조각)",
-      "ingredients": ["모짜렐라치즈", "빵가루"],
-      "origin": "치즈: 국산",
-      "is_hot": false,
-      "tags": ["간식", "인기"]
-    },
-    {
-      "id": "sd03",
-      "category": "사이드",
-      "name": "바삭 치킨너겟",
-      "price": 3500,
-      "description": "아이들도 좋아하는 부드러운 순살 치킨너겟(4조각)",
-      "ingredients": ["닭고기 혼합육", "마늘가루"],
-      "origin": "닭고기: 국산",
-      "is_hot": false,
-      "tags": ["아이들간식"]
-    },
-    {
-      "id": "d01",
-      "category": "음료",
-      "name": "시원한 콜라",
-      "price": 2000,
-      "description": "버거와 찰떡궁합인 시원한 탄산음료",
-      "ingredients": ["탄산수", "시럽"],
-      "origin": "해당 없음",
-      "is_hot": false,
-      "tags": ["필수"]
-    },
-    {
-      "id": "d02",
-      "category": "음료",
-      "name": "따뜻한 보리차",
-      "price": 1500,
-      "description": "탄산을 못 드시는 시니어 분들을 위한 고소하고 따뜻한 차",
-      "ingredients": ["볶은 보리", "정제수"],
-      "origin": "보리: 국산",
-      "is_hot": true,
-      "tags": ["시니어추천", "따뜻"]
-    },
-    {
-      "id": "d03",
-      "category": "음료",
-      "name": "달콤한 오렌지 주스",
-      "price": 3000,
-      "description": "비타민C가 풍부한 100% 농축 오렌지 주스",
-      "ingredients": ["오렌지 농축액"],
-      "origin": "오렌지: 스페인산",
-      "is_hot": false,
-      "tags": ["건강"]
-    },
-    {
-      "id": "b04",
-      "category": "버거",
-      "name": "새우 탱글 버거",
-      "price": 7200,
-      "description": "진짜 새우 살이 씹히는 패티와 고소한 타르타르 소스의 만남",
-      "ingredients": ["새우 패티", "타르타르 소스", "양상추"],
-      "origin": "새우: 베트남산",
-      "is_hot": false,
-      "tags": ["해산물", "깔끔"]
-    }
-  ]
-}
-
+  {
+    "store_name": "모닝브루 커피",
+    "currency": "KRW",
+    "categories": ["추천/할인", "에스프레소", "논커피", "스무디/에이드", "티", "디저트", "샌드위치/베이커리"],
+    "option_groups": [
+      {
+        "id": "og_temp",
+        "name": "온도",
+        "type": "single_required",
+        "options": [
+          { "id": "opt_hot", "label": "HOT", "price_delta": 0 },
+          { "id": "opt_ice", "label": "ICED", "price_delta": 0 }
+        ]
+      },
+      {
+        "id": "og_size",
+        "name": "사이즈",
+        "type": "single_required",
+        "options": [
+          { "id": "opt_size_r", "label": "레귤러(R)", "price_delta": 0 },
+          { "id": "opt_size_l", "label": "라지(L)", "price_delta": 500 }
+        ]
+      },
+      {
+        "id": "og_shot",
+        "name": "샷",
+        "type": "single_optional",
+        "options": [
+          { "id": "opt_shot_n", "label": "기본", "price_delta": 0 },
+          { "id": "opt_shot_p1", "label": "1샷 추가", "price_delta": 500 },
+          { "id": "opt_shot_p2", "label": "2샷 추가", "price_delta": 1000 },
+          { "id": "opt_shot_decaf", "label": "디카페인으로 변경", "price_delta": 500 }
+        ]
+      },
+      {
+        "id": "og_sugar",
+        "name": "당도",
+        "type": "single_optional",
+        "options": [
+          { "id": "opt_sugar_100", "label": "기본(100%)", "price_delta": 0 },
+          { "id": "opt_sugar_70", "label": "덜 달게(70%)", "price_delta": 0 },
+          { "id": "opt_sugar_50", "label": "반만 달게(50%)", "price_delta": 0 },
+          { "id": "opt_sugar_0", "label": "당도 없음(0%)", "price_delta": 0 }
+        ]
+      },
+      {
+        "id": "og_milk",
+        "name": "우유 종류",
+        "type": "single_optional",
+        "options": [
+          { "id": "opt_milk_default", "label": "기본 우유", "price_delta": 0 },
+          { "id": "opt_milk_oat", "label": "오트 밀크로 변경", "price_delta": 600 },
+          { "id": "opt_milk_soy", "label": "두유로 변경", "price_delta": 500 },
+          { "id": "opt_milk_low", "label": "저지방 우유로 변경", "price_delta": 0 }
+        ]
+      },
+      {
+        "id": "og_topping",
+        "name": "토핑 추가",
+        "type": "multi_optional",
+        "options": [
+          { "id": "opt_top_cream", "label": "휘핑크림 추가", "price_delta": 500 },
+          { "id": "opt_top_shot_vanilla", "label": "바닐라 시럽 추가", "price_delta": 300 },
+          { "id": "opt_top_shot_hazelnut", "label": "헤이즐넛 시럽 추가", "price_delta": 300 },
+          { "id": "opt_top_shot_caramel", "label": "카라멜 소스 추가", "price_delta": 300 },
+          { "id": "opt_top_pearl", "label": "버블(타피오카 펄) 추가", "price_delta": 700 }
+        ]
+      },
+      {
+        "id": "og_ice_amount",
+        "name": "얼음 양",
+        "type": "single_optional",
+        "options": [
+          { "id": "opt_ice_normal", "label": "기본", "price_delta": 0 },
+          { "id": "opt_ice_less", "label": "얼음 적게", "price_delta": 0 },
+          { "id": "opt_ice_none", "label": "얼음 없이", "price_delta": 0 }
+        ]
+      }
+    ],
+    "menus": [
+      {
+        "id": "c01",
+        "category": "추천/할인",
+        "name": "모닝브루 시그니처 라떼",
+        "price": 5500,
+        "discount_price": 4500,
+        "description": "모닝브루만의 블렌딩 원두로 뽑은 진한 에스프레소와 부드러운 우유가 조화를 이루는 대표 메뉴",
+        "ingredients": ["에스프레소 2샷", "신선한 우유", "바닐라 시럽"],
+        "origin": "원두: 에티오피아·브라질 블렌딩, 우유: 국산",
+        "is_hot": false,
+        "tags": ["베스트", "할인중", "시그니처"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_shot", "og_milk", "og_topping", "og_ice_amount"]
+      },
+      {
+        "id": "c02",
+        "category": "에스프레소",
+        "name": "카페 아메리카노",
+        "price": 3800,
+        "description": "깔끔하고 깊은 풍미의 에스프레소에 물을 더한 가장 기본적인 커피",
+        "ingredients": ["에스프레소 2샷", "정제수"],
+        "origin": "원두: 콜롬비아·과테말라 블렌딩",
+        "is_hot": false,
+        "tags": ["기본", "인기"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_shot", "og_ice_amount"]
+      },
+      {
+        "id": "c03",
+        "category": "에스프레소",
+        "name": "카페 라떼",
+        "price": 4500,
+        "description": "에스프레소의 진함과 우유의 부드러움이 균형 잡힌 클래식 라떼",
+        "ingredients": ["에스프레소 2샷", "신선한 우유"],
+        "origin": "원두: 콜롬비아·과테말라 블렌딩, 우유: 국산",
+        "is_hot": false,
+        "tags": ["기본"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_shot", "og_milk", "og_topping", "og_ice_amount"]
+      },
+      {
+        "id": "c04",
+        "category": "에스프레소",
+        "name": "바닐라 라떼",
+        "price": 5000,
+        "description": "달콤한 바닐라 시럽이 더해져 부드럽고 향긋한 라떼",
+        "ingredients": ["에스프레소 2샷", "신선한 우유", "바닐라 시럽"],
+        "origin": "원두: 콜롬비아·과테말라 블렌딩, 우유: 국산",
+        "is_hot": false,
+        "tags": ["달콤"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_shot", "og_sugar", "og_milk", "og_topping", "og_ice_amount"]
+      },
+      {
+        "id": "c05",
+        "category": "에스프레소",
+        "name": "카라멜 마끼아또",
+        "price": 5300,
+        "description": "바닐라 시럽 위에 우유를 얹고, 에스프레소와 카라멜 소스로 마무리한 달콤한 커피",
+        "ingredients": ["에스프레소 2샷", "신선한 우유", "바닐라 시럽", "카라멜 소스"],
+        "origin": "원두: 콜롬비아·과테말라 블렌딩, 우유: 국산",
+        "is_hot": false,
+        "tags": ["달콤", "인기"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_shot", "og_sugar", "og_milk", "og_ice_amount"]
+      },
+      {
+        "id": "c06",
+        "category": "에스프레소",
+        "name": "카페 모카",
+        "price": 5300,
+        "description": "진한 초콜릿 소스와 에스프레소, 우유가 조화로운 달콤 쌉쌀한 라떼",
+        "ingredients": ["에스프레소 2샷", "신선한 우유", "초콜릿 소스"],
+        "origin": "원두: 콜롬비아·과테말라 블렌딩, 우유: 국산, 초콜릿: 벨기에산",
+        "is_hot": false,
+        "tags": ["달콤", "초콜릿"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_shot", "og_sugar", "og_milk", "og_topping", "og_ice_amount"]
+      },
+      {
+        "id": "c07",
+        "category": "에스프레소",
+        "name": "콜드브루",
+        "price": 4800,
+        "description": "12시간 저온 추출로 쓴맛 없이 깔끔하고 부드러운 찬 커피",
+        "ingredients": ["콜드브루 원액", "정제수"],
+        "origin": "원두: 에티오피아 싱글 오리진",
+        "is_hot": false,
+        "tags": ["콜드브루", "부드러운"],
+        "applicable_option_groups": ["og_size", "og_ice_amount"]
+      },
+      {
+        "id": "c08",
+        "category": "에스프레소",
+        "name": "콜드브루 라떼",
+        "price": 5500,
+        "description": "부드러운 콜드브루 원액 위에 우유를 천천히 부어 층을 이루는 시각적으로도 아름다운 음료",
+        "ingredients": ["콜드브루 원액", "신선한 우유"],
+        "origin": "원두: 에티오피아 싱글 오리진, 우유: 국산",
+        "is_hot": false,
+        "tags": ["콜드브루", "인스타"],
+        "applicable_option_groups": ["og_size", "og_sugar", "og_milk", "og_topping", "og_ice_amount"]
+      },
+      {
+        "id": "c09",
+        "category": "추천/할인",
+        "name": "흑당 버블 라떼",
+        "price": 6000,
+        "discount_price": 5200,
+        "description": "달콤한 흑당 시럽과 쫄깃한 타피오카 펄이 듬뿍 들어간 인기 시즌 메뉴",
+        "ingredients": ["에스프레소 1샷", "신선한 우유", "흑당 시럽", "타피오카 펄"],
+        "origin": "우유: 국산, 흑당: 대만산",
+        "is_hot": false,
+        "tags": ["할인중", "버블", "흑당", "인기"],
+        "applicable_option_groups": ["og_size", "og_shot", "og_sugar", "og_milk", "og_ice_amount"]
+      },
+      {
+        "id": "n01",
+        "category": "논커피",
+        "name": "말차 라떼",
+        "price": 5500,
+        "description": "일본산 유기농 말차 파우더를 사용한 진하고 쌉쌀한 그린 라떼",
+        "ingredients": ["말차 파우더", "신선한 우유", "바닐라 시럽"],
+        "origin": "말차: 일본 우지산, 우유: 국산",
+        "is_hot": false,
+        "tags": ["말차", "인기"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_sugar", "og_milk", "og_topping", "og_ice_amount"]
+      },
+      {
+        "id": "n02",
+        "category": "논커피",
+        "name": "초콜릿 라떼",
+        "price": 5000,
+        "description": "벨기에산 다크 초콜릿 소스와 우유로 만든 진하고 달콤한 음료",
+        "ingredients": ["초콜릿 소스", "신선한 우유"],
+        "origin": "초콜릿: 벨기에산, 우유: 국산",
+        "is_hot": false,
+        "tags": ["초콜릿", "달콤"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_sugar", "og_milk", "og_topping", "og_ice_amount"]
+      },
+      {
+        "id": "n03",
+        "category": "논커피",
+        "name": "고구마 라떼",
+        "price": 4800,
+        "description": "국산 자색고구마를 갈아 만든 페이스트로 만드는 달콤하고 고소한 라떼",
+        "ingredients": ["자색고구마 페이스트", "신선한 우유"],
+        "origin": "고구마: 국산(전남 해남), 우유: 국산",
+        "is_hot": false,
+        "tags": ["달콤", "시니어추천"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_sugar", "og_milk", "og_ice_amount"]
+      },
+      {
+        "id": "n04",
+        "category": "논커피",
+        "name": "진한 곡물 라떼",
+        "price": 4500,
+        "description": "15가지 국산 곡물을 볶아 갈아 만든 고소하고 든든한 라떼",
+        "ingredients": ["15곡 혼합 분말", "신선한 우유"],
+        "origin": "혼합 곡물: 국산, 우유: 국산",
+        "is_hot": true,
+        "tags": ["시니어추천", "건강", "고소한"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_sugar", "og_milk", "og_ice_amount"]
+      },
+      {
+        "id": "sm01",
+        "category": "스무디/에이드",
+        "name": "딸기 요거트 스무디",
+        "price": 6000,
+        "description": "새콤달콤한 생딸기와 진한 요거트를 함께 갈아 만든 상큼한 스무디",
+        "ingredients": ["딸기", "플레인 요거트", "우유", "얼음"],
+        "origin": "딸기: 국산(논산), 요거트: 국산",
+        "is_hot": false,
+        "tags": ["스무디", "상큼"],
+        "applicable_option_groups": ["og_size", "og_sugar"]
+      },
+      {
+        "id": "sm02",
+        "category": "스무디/에이드",
+        "name": "망고 패션 스무디",
+        "price": 6500,
+        "description": "달콤한 망고 퓨레와 새콤한 패션프루트가 어우러진 트로피컬 스무디",
+        "ingredients": ["망고 퓨레", "패션프루트 농축액", "우유", "얼음"],
+        "origin": "망고: 태국산, 패션프루트: 브라질산",
+        "is_hot": false,
+        "tags": ["스무디", "트로피컬"],
+        "applicable_option_groups": ["og_size", "og_sugar"]
+      },
+      {
+        "id": "sm03",
+        "category": "스무디/에이드",
+        "name": "자몽 에이드",
+        "price": 5500,
+        "description": "상큼한 자몽 농축액에 탄산수를 더해 청량감이 넘치는 에이드",
+        "ingredients": ["자몽 농축액", "탄산수", "자몽 슬라이스", "얼음"],
+        "origin": "자몽: 미국산",
+        "is_hot": false,
+        "tags": ["에이드", "상큼", "인기"],
+        "applicable_option_groups": ["og_size", "og_sugar", "og_ice_amount"]
+      },
+      {
+        "id": "sm04",
+        "category": "스무디/에이드",
+        "name": "청포도 레몬 에이드",
+        "price": 5500,
+        "description": "싱그러운 청포도와 레몬의 상큼함이 어우러진 시원한 탄산 에이드",
+        "ingredients": ["청포도 농축액", "레몬즙", "탄산수", "얼음"],
+        "origin": "청포도: 칠레산, 레몬: 미국산",
+        "is_hot": false,
+        "tags": ["에이드", "상큼"],
+        "applicable_option_groups": ["og_size", "og_sugar", "og_ice_amount"]
+      },
+      {
+        "id": "t01",
+        "category": "티",
+        "name": "잉글리시 브렉퍼스트 티",
+        "price": 4000,
+        "description": "아침을 깨워줄 진하고 풍부한 홍차. 우유를 추가해 밀크티로 즐길 수 있어요.",
+        "ingredients": ["스리랑카산 홍차 티백", "정제수"],
+        "origin": "홍차: 스리랑카(실론) 산",
+        "is_hot": true,
+        "tags": ["홍차", "클래식"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_sugar", "og_ice_amount"]
+      },
+      {
+        "id": "t02",
+        "category": "티",
+        "name": "캐모마일 허브티",
+        "price": 4000,
+        "description": "은은하고 달콤한 꽃향기가 나는 편안한 카페인 프리 허브티",
+        "ingredients": ["캐모마일 티백", "정제수"],
+        "origin": "캐모마일: 독일산",
+        "is_hot": true,
+        "tags": ["허브티", "카페인프리", "시니어추천"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_sugar", "og_ice_amount"]
+      },
+      {
+        "id": "t03",
+        "category": "티",
+        "name": "제주 녹차",
+        "price": 4200,
+        "description": "제주도 청정 녹차잎으로 우린 싱그럽고 깔끔한 녹차",
+        "ingredients": ["제주 녹차 티백", "정제수"],
+        "origin": "녹차: 국산(제주)",
+        "is_hot": true,
+        "tags": ["녹차", "국산", "시니어추천"],
+        "applicable_option_groups": ["og_temp", "og_size", "og_ice_amount"]
+      },
+      {
+        "id": "t04",
+        "category": "티",
+        "name": "복숭아 아이스티",
+        "price": 4500,
+        "description": "달콤하고 향긋한 복숭아 홍차를 시원하게 즐기는 여름 인기 메뉴",
+        "ingredients": ["복숭아 홍차 티백", "복숭아 시럽", "정제수", "얼음"],
+        "origin": "홍차: 스리랑카산, 복숭아 시럽: 국산",
+        "is_hot": false,
+        "tags": ["아이스티", "달콤", "인기"],
+        "applicable_option_groups": ["og_size", "og_sugar", "og_ice_amount"]
+      },
+      {
+        "id": "d01",
+        "category": "디저트",
+        "name": "뉴욕 치즈케이크",
+        "price": 6500,
+        "description": "진하고 묵직한 크림치즈 풍미가 일품인 정통 뉴욕 스타일 치즈케이크",
+        "ingredients": ["크림치즈", "생크림", "달걀", "설탕", "쿠키 크럼블 베이스"],
+        "origin": "크림치즈: 국산, 달걀: 국산",
+        "is_hot": false,
+        "tags": ["케이크", "인기", "시그니처"]
+      },
+      {
+        "id": "d02",
+        "category": "디저트",
+        "name": "바스크 치즈케이크",
+        "price": 6800,
+        "description": "겉은 탈 듯 진하고 속은 촉촉하게 녹아드는 스페인식 바스크 치즈케이크",
+        "ingredients": ["크림치즈", "생크림", "달걀", "설탕"],
+        "origin": "크림치즈: 국산, 달걀: 국산",
+        "is_hot": false,
+        "tags": ["케이크", "베스트"]
+      },
+      {
+        "id": "d03",
+        "category": "디저트",
+        "name": "말차 티라미수",
+        "price": 6500,
+        "description": "고소한 말차와 부드러운 마스카포네 크림이 층층이 쌓인 퓨전 티라미수",
+        "ingredients": ["말차 파우더", "마스카포네 치즈", "레이디핑거 쿠키", "생크림"],
+        "origin": "말차: 일본 우지산, 마스카포네: 이탈리아산",
+        "is_hot": false,
+        "tags": ["티라미수", "말차"]
+      },
+      {
+        "id": "d04",
+        "category": "디저트",
+        "name": "크로플",
+        "price": 4500,
+        "description": "크루아상 반죽을 와플 기계에 구워 바삭하고 층이 살아있는 달콤한 디저트",
+        "ingredients": ["크루아상 반죽", "버터", "설탕"],
+        "origin": "버터: 프랑스산, 밀가루: 국산",
+        "is_hot": true,
+        "tags": ["구움과자", "인기", "따뜻"]
+      },
+      {
+        "id": "d05",
+        "category": "디저트",
+        "name": "소금 버터 스콘",
+        "price": 3800,
+        "description": "고소한 버터와 천일염이 어우러진 담백하고 층이 살아있는 플레인 스콘",
+        "ingredients": ["밀가루", "버터", "생크림", "천일염", "설탕"],
+        "origin": "버터: 프랑스산, 밀가루: 국산, 천일염: 국산(신안)",
+        "is_hot": true,
+        "tags": ["스콘", "담백"]
+      },
+      {
+        "id": "d06",
+        "category": "추천/할인",
+        "name": "인절미 카스텔라",
+        "price": 4200,
+        "discount_price": 3500,
+        "description": "촉촉한 카스텔라 위에 고소한 콩가루와 쫄깃한 떡을 올린 한국식 퓨전 디저트",
+        "ingredients": ["카스텔라", "인절미 떡", "콩가루", "꿀"],
+        "origin": "떡: 국산(찹쌀), 콩가루: 국산",
+        "is_hot": false,
+        "tags": ["할인중", "한국식", "인기"]
+      },
+      {
+        "id": "sb01",
+        "category": "샌드위치/베이커리",
+        "name": "에그 마요 샌드위치",
+        "price": 5500,
+        "description": "부드럽게 삶은 달걀과 마요네즈가 두툼하게 들어간 든든한 브런치 샌드위치",
+        "ingredients": ["식빵", "삶은 달걀", "마요네즈", "양상추", "토마토"],
+        "origin": "달걀: 국산(동물복지), 밀가루: 국산",
+        "is_hot": false,
+        "tags": ["샌드위치", "브런치", "든든"]
+      },
+      {
+        "id": "sb02",
+        "category": "샌드위치/베이커리",
+        "name": "햄 치즈 파니니",
+        "price": 6200,
+        "description": "통밀 포카치아에 햄, 체다치즈, 루꼴라를 넣고 따뜻하게 눌러 구운 파니니",
+        "ingredients": ["통밀 포카치아", "슬라이스 햄", "체다치즈", "루꼴라", "홀그레인 머스터드"],
+        "origin": "햄: 국산, 치즈: 뉴질랜드산, 밀가루: 국산",
+        "is_hot": true,
+        "tags": ["파니니", "따뜻", "브런치"]
+      },
+      {
+        "id": "sb03",
+        "category": "샌드위치/베이커리",
+        "name": "크로아상",
+        "price": 3500,
+        "description": "매일 아침 구워내는 바삭하고 결이 살아있는 버터 크로아상",
+        "ingredients": ["밀가루", "버터", "달걀", "설탕", "소금"],
+        "origin": "버터: 프랑스산, 밀가루: 국산, 달걀: 국산",
+        "is_hot": true,
+        "tags": ["베이커리", "기본", "따뜻"]
+      }
+    ]
+  }

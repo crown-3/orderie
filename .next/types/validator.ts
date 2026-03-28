@@ -65,10 +65,28 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../app/api/log/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/log">> = Specific
+  const handler = {} as typeof import("../../app/api/log/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/api/session/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/session">> = Specific
   const handler = {} as typeof import("../../app/api/session/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/api/soniox-token/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/soniox-token">> = Specific
+  const handler = {} as typeof import("../../app/api/soniox-token/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

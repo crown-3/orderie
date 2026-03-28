@@ -6,7 +6,10 @@
       "WebSearch",
       "WebFetch(domain:platform.openai.com)",
       "WebFetch(domain:openai.github.io)",
-      "WebFetch(domain:www.npmjs.com)"
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(npm install:*)",
+      "WebFetch(domain:soniox.com)",
+      "Bash(unlink:*)"
     ]
   }
 }
