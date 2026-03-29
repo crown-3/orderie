@@ -9,7 +9,8 @@
       "WebFetch(domain:www.npmjs.com)",
       "Bash(npm install:*)",
       "WebFetch(domain:soniox.com)",
-      "Bash(unlink:*)"
+      "Bash(unlink:*)",
+      "Bash(yarn add:*)"
     ]
   }
 }

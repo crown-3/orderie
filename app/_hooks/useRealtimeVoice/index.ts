@@ -4,9 +4,11 @@ import { instructions } from "./_menuData";
 import { createOrderingTools } from "./_tools";
 import { useSonioxSTT } from "./_useSonioxSTT";
 import { useAudioLevel } from "./_useAudioLevel";
+import { useSpeakerGate } from "./_useSpeakerGate";
 import type { VoiceStatus, CartItem } from "./_types";
+import type { GateStatus } from "./_useSpeakerGate";
 
-export type { VoiceStatus, CartItem };
+export type { VoiceStatus, CartItem, GateStatus };
 
 // Fire-and-forget server log — output appears in the Next.js terminal.
 const slog = (...args: unknown[]) => {
@@ -37,6 +39,7 @@ export const useRealtimeVoice = () => {
 
   const { userTranscriptChunks, onSpeechStarted, start: startSTT, stop: stopSTT } = useSonioxSTT();
   const { audioLevel, start: startAnalyser, stop: stopAnalyser } = useAudioLevel(cartItemsRef);
+  const { gateStatus, start: startGate, stop: stopGate } = useSpeakerGate();
 
   // Create agent once on mount (after SSR — "use client" components still server-render).
   useEffect(() => {
@@ -58,9 +61,10 @@ export const useRealtimeVoice = () => {
   const cleanup = useCallback(() => {
     stopAnalyser();
     stopSTT();
+    stopGate();
     audioElRef.current?.remove();
     audioElRef.current = null;
-  }, [stopAnalyser, stopSTT]);
+  }, [stopAnalyser, stopSTT, stopGate]);
 
   const start = useCallback(async () => {
     if (!agentRef.current) return;
@@ -80,6 +84,14 @@ export const useRealtimeVoice = () => {
       const ephemeralKey: string = sessionData.value;
       const sonioxKey: string = sonioxData.api_key;
 
+      // Start the speaker gate: loads model, opens mic, returns gated stream.
+      // This must happen before the WebRTC transport is created so we can
+      // inject the gated track into the peer connection.
+      slog("[gate] starting speaker gate");
+      const gatedStream = await startGate();
+      const gatedTrack = gatedStream.getAudioTracks()[0];
+      slog("[gate] gated stream ready, enrolling speaker");
+
       // Append a real DOM audio element so mobile browsers honour autoplay reliably.
       const audioEl = document.createElement("audio");
       audioEl.autoplay = true;
@@ -97,6 +109,20 @@ export const useRealtimeVoice = () => {
       const transport = new OpenAIRealtimeWebRTC({
         audioElement: audioEl,
         changePeerConnection: (pc) => {
+          // Intercept addTrack so the SDK's own getUserMedia track is replaced
+          // with our speaker-gated track before it reaches the peer connection.
+          const origAddTrack = pc.addTrack.bind(pc);
+          (pc as unknown as Record<string, unknown>).addTrack = (
+            track: MediaStreamTrack,
+            ...streams: MediaStream[]
+          ) => {
+            if (track.kind === "audio") {
+              slog("[gate] injecting gated audio track into PeerConnection");
+              track.stop(); // discard the SDK's own mic track
+              return origAddTrack(gatedTrack, gatedStream);
+            }
+            return origAddTrack(track, ...streams);
+          };
           pc.addEventListener("track", (e) => { if (e.streams[0]) resolveStream(e.streams[0]); });
           return pc;
         },
@@ -176,7 +202,7 @@ export const useRealtimeVoice = () => {
 
       const stream = await streamPromise;
       await startAnalyser(stream);
-      await startSTT(sonioxKey);
+      await startSTT(sonioxKey, gatedStream);
 
     } catch (err) {
       slog("[session] connection failed:", String(err));
@@ -184,7 +210,7 @@ export const useRealtimeVoice = () => {
       sessionRef.current = null;
       setStatus("error");
     }
-  }, [cleanup, onSpeechStarted, startAnalyser, startSTT]);
+  }, [cleanup, onSpeechStarted, startAnalyser, startSTT, startGate]);
 
   const stop = useCallback(() => {
     slog("[session] stop()");
@@ -225,7 +251,6 @@ export const useRealtimeVoice = () => {
         response: {
           instructions:
             "주문이 완료되었습니다. 지금 바로 고객에게 진심 어린 감사 인사를 해주세요. 반드시 말하세요. 예: '주문해 주셔서 진심으로 감사합니다! 맛있게 드세요. 좋은 하루 되세요!'",
-          modalities: ["text", "audio"],
         },
       });
     } catch (e) {
@@ -238,5 +263,6 @@ export const useRealtimeVoice = () => {
     audioLevel, transcriptChunks, userTranscriptChunks,
     displayedMenuIds, cartItems, updateCartItem,
     isPaymentGuideVisible, triggerOrderComplete, tpm,
+    gateStatus,
   };
 };

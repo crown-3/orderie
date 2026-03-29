@@ -6,12 +6,12 @@ export function useSonioxSTT() {
   const [userTranscriptChunks, setUserTranscriptChunks] = useState<string[]>([]);
 
   const wsRef = useRef<WebSocket | null>(null);
-  const micStreamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const fullTextRef = useRef("");
   const speechStartBaseRef = useRef(0);
   const utteranceAccumulatedRef = useRef("");
   // The speaker ID of the first person who speaks — treated as the main orderer.
+  // Secondary defence on top of the audio-level voice gate.
   const mainSpeakerRef = useRef<number | null>(null);
 
   // Call when OpenAI VAD fires input_audio_buffer.speech_started.
@@ -21,9 +21,12 @@ export function useSonioxSTT() {
     setUserTranscriptChunks([]);
   }, []);
 
-  const start = useCallback(async (apiKey: string) => {
-    const micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    micStreamRef.current = micStream;
+  /**
+   * @param apiKey  Soniox API key
+   * @param stream  Already-gated MediaStream from useSpeakerGate.
+   *                The gate owns the mic track lifecycle; we do not stop it here.
+   */
+  const start = useCallback(async (apiKey: string, stream: MediaStream) => {
     fullTextRef.current = "";
     speechStartBaseRef.current = 0;
     utteranceAccumulatedRef.current = "";
@@ -42,7 +45,7 @@ export function useSonioxSTT() {
           enable_speaker_diarization: true,
         }),
       );
-      const recorder = new MediaRecorder(micStream);
+      const recorder = new MediaRecorder(stream);
       mediaRecorderRef.current = recorder;
       recorder.addEventListener("dataavailable", (e) => {
         if (e.data.size > 0 && ws.readyState === WebSocket.OPEN) {
@@ -69,10 +72,11 @@ export function useSonioxSTT() {
       }
 
       // Filter out tokens from other speakers. Tokens without a speaker field
-      // (e.g. from models that don't always annotate control tokens) are kept.
-      const relevantTokens = mainSpeakerRef.current !== null
-        ? tokens.filter((t) => t.speaker === undefined || t.speaker === mainSpeakerRef.current)
-        : tokens;
+      // (e.g. control tokens) are kept.
+      const relevantTokens =
+        mainSpeakerRef.current !== null
+          ? tokens.filter((t) => t.speaker === undefined || t.speaker === mainSpeakerRef.current)
+          : tokens;
 
       const hasFin = relevantTokens.some((t) => t.text === "<fin>");
       const fullText = relevantTokens
@@ -100,8 +104,7 @@ export function useSonioxSTT() {
     mediaRecorderRef.current = null;
     wsRef.current?.close();
     wsRef.current = null;
-    micStreamRef.current?.getTracks().forEach((t) => t.stop());
-    micStreamRef.current = null;
+    // Note: mic stream lifecycle is owned by useSpeakerGate — not stopped here.
     fullTextRef.current = "";
     speechStartBaseRef.current = 0;
     utteranceAccumulatedRef.current = "";

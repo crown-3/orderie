@@ -48,20 +48,6 @@ interface CharacterSectionProps {
   isCartMode: boolean;
 }
 
-const BUTTON_LABEL: Record<string, string> = {
-  idle: "Start Talking",
-  connecting: "Connecting…",
-  connected: "Stop",
-  error: "Retry",
-};
-
-const BUTTON_CLASS: Record<string, string> = {
-  idle: "bg-blue-500 hover:bg-blue-600",
-  connecting: "bg-gray-400 cursor-not-allowed",
-  connected: "bg-red-500 hover:bg-red-600",
-  error: "bg-orange-500 hover:bg-orange-600",
-};
-
 // line-height for leading-tight (1.25) at each font size, × 4 lines
 const LINE_HEIGHT_LONG = 36 * 1.25 * 4;  // 180px
 const LINE_HEIGHT_SHORT = 48 * 1.25 * 4; // 240px
@@ -130,17 +116,11 @@ const CharacterSection = ({
       )}
 
       {!isCartMode && (
-        <div className="flex flex-col items-center gap-4">
+        <div
+          onClick={status === "connecting" ? undefined : isActive ? stop : start}
+          className={status === "connecting" ? "cursor-not-allowed" : "cursor-pointer"}
+        >
           <Face audioLevel={audioLevel} pupilX={pupilX} faceOffset={faceOffset} />
-
-          {/* Voice control */}
-          <button
-            onClick={isActive ? stop : start}
-            disabled={status === "connecting"}
-            className={`px-6 py-3 rounded-full text-white font-medium transition-colors ${BUTTON_CLASS[status]}`}
-          >
-            {BUTTON_LABEL[status]}
-          </button>
         </div>
       )}
 
