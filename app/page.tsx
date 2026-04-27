@@ -50,9 +50,9 @@ export default function Home() {
   const isCartMode = cartItems.length > 0;
 
   return (
-    <main className="w-full h-[100dvh] flex flex-col relative">
+    <main className="w-full h-[100dvh] flex relative">
       <div
-        className={`transition-[height] duration-500 overflow-hidden min-h-0 ${isCartMode ? "h-[600px]" : "flex-1"}`}
+        className={`transition-[height] duration-500 overflow-hidden min-h-0 flex-1`}
       >
         <CharacterSection
           status={status}

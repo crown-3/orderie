@@ -1,4 +1,5 @@
 import {
+  BellAlertIcon,
   ExclamationTriangleIcon,
   ShoppingCartIcon,
 } from "@heroicons/react/20/solid";
@@ -6,6 +7,10 @@ import Menu from "./components/menu";
 import menusJson from "@/assets/menus.json";
 import MenuImage from "@/assets/menuImages/coffee.jpg";
 import { CartItem } from "@/_hooks/useRealtimeVoice";
+
+import ClickIcon from "./assets/click.svg"
+import RandomImage from "@/assets/presentations/annoying_orange.jpg"
+import Image from "next/image";
 
 interface Props {
   displayedMenuIds: string[];
@@ -46,11 +51,11 @@ const UISection = ({
 
   return (
     <section
-      className={`relative bg-[#000] w-full flex flex-col items-center p-4 gap-3 ${isCartMode || isPaymentComplete ? "flex-1 overflow-y-auto" : ""}`}
+      className={`relative bg-[#000] flex flex-col items-center gap-3 ${isCartMode || isPaymentComplete ? "overflow-y-auto" : ""}`}
     >
       {/* All content fades out when payment completes */}
       <div
-        className="w-full flex flex-col items-center gap-3 transition-opacity duration-700"
+        className="w-full flex flex-col items-center gap-3 transition-opacity duration-700 h-full"
         style={{ opacity: isPaymentComplete ? 0 : 1, pointerEvents: isPaymentComplete ? "none" : "auto" }}
       >
         {isCartMode && (
@@ -62,35 +67,35 @@ const UISection = ({
 
         {isCartMode
           ? cartMenus.map(({ menu, quantity, selectedOptions }) => (
-              <Menu
-                key={menu.id}
-                isWithCount
-                count={quantity}
-                onIncrement={() => onUpdateCartItem(menu.id, quantity + 1)}
-                onDecrement={() => onUpdateCartItem(menu.id, quantity - 1)}
-                name={menu.name}
-                description={
-                  selectedOptions?.length
-                    ? selectedOptions.join(" · ")
-                    : menu.description
-                }
-                menuImage={MenuImage}
-                price={menu.discount_price ?? menu.price}
-                isDiscounted={menu.discount_price !== undefined}
-                originalPrice={menu.price}
-              />
-            ))
+            <Menu
+              key={menu.id}
+              isWithCount
+              count={quantity}
+              onIncrement={() => onUpdateCartItem(menu.id, quantity + 1)}
+              onDecrement={() => onUpdateCartItem(menu.id, quantity - 1)}
+              name={menu.name}
+              description={
+                selectedOptions?.length
+                  ? selectedOptions.join(" · ")
+                  : menu.description
+              }
+              menuImage={MenuImage}
+              price={menu.discount_price ?? menu.price}
+              isDiscounted={menu.discount_price !== undefined}
+              originalPrice={menu.price}
+            />
+          ))
           : displayedMenus.map((menu) => (
-              <Menu
-                key={menu.id}
-                name={menu.name}
-                description={menu.description}
-                menuImage={MenuImage}
-                price={menu.discount_price ?? menu.price}
-                isDiscounted={menu.discount_price !== undefined}
-                originalPrice={menu.price}
-              />
-            ))}
+            <Menu
+              key={menu.id}
+              name={menu.name}
+              description={menu.description}
+              menuImage={MenuImage}
+              price={menu.discount_price ?? menu.price}
+              isDiscounted={menu.discount_price !== undefined}
+              originalPrice={menu.price}
+            />
+          ))}
 
         {isCartMode && (
           <div className="flex items-end gap-2 text-[#fff] font-bold w-full justify-end mb-10 mt-2">
@@ -116,26 +121,37 @@ const UISection = ({
               키오스크가 이상하거나, 주문 중 도움이 필요하시면 눌러주세요
             </p>
           </div>
-        ) : displayedMenus.length > 0 ? (
-          <div className="flex gap-5 w-full justify-center items-center mt-4">
-            <button className="bg-[#fff] px-6 py-3 rounded-[12px] gap-1 flex items-center">
-              <ExclamationTriangleIcon className="w-8" />
-              <h1 className="text-[24px] font-bold">직원 호출</h1>
-            </button>
-            <p className="text-[#fff] font-semibold text-[20px]">
-              키오스크가 이상하거나, 주문 중 도움이 필요하시면 눌러주세요
-            </p>
+        ) : displayedMenus.length == 0 ? (
+          <div className="flex flex-col h-full justify-center items-between w-[50vw]">
+            <Image src={RandomImage} alt="Random" className="w-full justify-stretch object-contain h-[calc(100%-100px)]" />
+
+
+            <div className="w-full flex justify-center items-center gap-10 h-[100px]">
+              <button className="px-9 py-6 gap-3 flex items-center text-[#fff]">
+                <BellAlertIcon className="w-[36px]" />
+                <h1 className="text-[26px] font-bold">직원 호출</h1>
+              </button>
+
+              <button className="px-9 py-6 gap-3 flex items-center text-[#fff]">
+                <ClickIcon className="w-[36px] text-[#fff]" />
+                <h1 className="text-[26px] font-bold">터치 모드</h1>
+              </button>
+            </div>
           </div>
         ) : (
-          <>
-            <p className="text-[#fff] font-semibold text-3xl">
-              키오스크가 이상하거나, 주문 중 도움이 필요하시면 눌러주세요
-            </p>
-            <button className="bg-[#fff] px-9 py-6 rounded-[24px] gap-2 flex items-center">
-              <ExclamationTriangleIcon className="w-15" />
-              <h1 className="text-[48px] font-bold">직원 호출</h1>
+          <div className="flex flex-col gap-5 h-full justify-center items-center p-4">
+            <button className="px-9 py-6 gap-3 flex items-center text-[#fff]">
+              <BellAlertIcon className="w-[50px]" />
+              <h1 className="text-[40px] font-bold">직원 호출</h1>
             </button>
-          </>
+
+            <div className="h-[2px] bg-[#404040] w-full" />
+
+            <button className="px-9 py-6 gap-3 flex items-center text-[#fff]">
+              <ClickIcon className="w-[50px] text-[#fff]" />
+              <h1 className="text-[40px] font-bold">터치 모드</h1>
+            </button>
+          </div>
         )}
       </div>
 
