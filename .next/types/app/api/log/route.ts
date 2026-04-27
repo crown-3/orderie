@@ -1,4 +1,4 @@
-// File: /data/data/com.termux/files/home/repos/orderie/app/api/log/route.ts
+// File: /workspaces/orderie/app/api/log/route.ts
 import * as entry from '../../../../../app/api/log/route.js'
 import type { NextRequest } from 'next/server.js'
 

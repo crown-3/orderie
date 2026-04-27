@@ -1,4 +1,4 @@
-// File: /data/data/com.termux/files/home/repos/orderie/app/api/soniox-token/route.ts
+// File: /workspaces/orderie/app/api/soniox-token/route.ts
 import * as entry from '../../../../../app/api/soniox-token/route.js'
 import type { NextRequest } from 'next/server.js'
 
