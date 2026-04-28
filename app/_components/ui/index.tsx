@@ -121,7 +121,7 @@ const UISection = ({
               키오스크가 이상하거나, 주문 중 도움이 필요하시면 눌러주세요
             </p>
           </div>
-        ) : displayedMenus.length == 0 ? (
+        ) : displayedMenus.length > 0 ? (
           <div className="flex flex-col h-full justify-center items-between w-[50vw]">
             <Image src={RandomImage} alt="Random" className="w-full justify-stretch object-contain h-[calc(100%-100px)]" />
 

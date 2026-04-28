@@ -21,15 +21,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/api/session/route.js"
     ],
-    "/api/log/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/log/route.js"
-    ],
     "/api/soniox-token/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/soniox-token/route.js"
+    ],
+    "/api/log/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/log/route.js"
     ]
   }
 }

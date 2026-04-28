@@ -10,7 +10,8 @@
       "Bash(npm install:*)",
       "WebFetch(domain:soniox.com)",
       "Bash(unlink:*)",
-      "Bash(yarn add:*)"
+      "Bash(yarn add:*)",
+      "Bash(npx tsc *)"
     ]
   }
 }
