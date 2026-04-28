@@ -42,6 +42,7 @@ interface CharacterSectionProps {
   status: VoiceStatus;
   start: () => void;
   stop: () => void;
+  commitSpeech: () => void;
   audioLevel: number;
   transcriptChunks: string[];
   userTranscriptChunks: string[];
@@ -58,13 +59,45 @@ const CharacterSection = ({
   status,
   start,
   stop,
+  commitSpeech,
   audioLevel,
   transcriptChunks,
   userTranscriptChunks,
   isCartMode,
 }: CharacterSectionProps) => {
-  const { faceOffset, pupilX } = useIdleAnimation();
+  const { faceOffset, pupilX: idlePupilX } = useIdleAnimation();
   const isActive = status === "connected" || status === "connecting";
+
+  const [arrowKeys, setArrowKeys] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "a" && status === "connected") commitSpeech();
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
+        e.preventDefault();
+        setArrowKeys((prev) => new Set([...prev, e.key]));
+      }
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
+        setArrowKeys((prev) => { const next = new Set(prev); next.delete(e.key); return next; });
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, [status, commitSpeech]);
+
+  const anyArrow = arrowKeys.size > 0;
+  const pupilX = anyArrow
+    ? (arrowKeys.has("ArrowRight") ? 100 : arrowKeys.has("ArrowLeft") ? -100 : 0)
+    : idlePupilX;
+  const pupilY = anyArrow
+    ? (arrowKeys.has("ArrowDown") ? 100 : arrowKeys.has("ArrowUp") ? -100 : 0)
+    : 0;
 
   const { display: aiDisplay, fading: aiFading } = useTranscriptDisplay(transcriptChunks);
   const { display: userDisplay, fading: userFading } = useTranscriptDisplay(userTranscriptChunks);
@@ -116,11 +149,37 @@ const CharacterSection = ({
       )}
 
       {!isCartMode && (
-        <div
-          onClick={status === "connecting" ? undefined : isActive ? stop : start}
-          className={status === "connecting" ? "cursor-not-allowed" : "cursor-pointer"}
-        >
-          <Face audioLevel={audioLevel} pupilX={pupilX} faceOffset={faceOffset} />
+        <div className="relative">
+          <div
+            onClick={status === "connecting" ? undefined : isActive ? stop : start}
+            className={status === "connecting" ? "cursor-not-allowed" : "cursor-pointer"}
+          >
+            <Face audioLevel={audioLevel} pupilX={pupilX} pupilY={pupilY} faceOffset={faceOffset} isConnected={status === "connected"} />
+          </div>
+
+          {status === "idle" && (
+            <>
+              {[
+                { label: "z", size: 22, delay: 0 },
+                { label: "Z", size: 36, delay: 1 },
+                { label: "Z", size: 52, delay: 2 },
+              ].map(({ label, size, delay }, i) => (
+                <span
+                  key={i}
+                  className="absolute pointer-events-none font-black text-white select-none"
+                  style={{
+                    fontSize: size,
+                    left: "65%",
+                    top: "10%",
+                    animation: `sleep-z 3s ${delay}s ease-in-out infinite`,
+                    opacity: 0,
+                  }}
+                >
+                  {label}
+                </span>
+              ))}
+            </>
+          )}
         </div>
       )}
 

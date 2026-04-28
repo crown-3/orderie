@@ -241,6 +241,17 @@ export const useRealtimeVoice = () => {
     });
   }, []);
 
+  const commitSpeech = useCallback(() => {
+    if (!sessionRef.current) return;
+    slog("[session] commitSpeech — manual turn end");
+    try {
+      sessionRef.current.transport.sendEvent({ type: "input_audio_buffer.commit" });
+      sessionRef.current.transport.sendEvent({ type: "response.create" });
+    } catch (e) {
+      slog("[session] commitSpeech failed:", String(e));
+    }
+  }, []);
+
   const triggerOrderComplete = useCallback(() => {
     slog("[session] triggerOrderComplete — clearing cart, triggering thank-you");
     setCartItems([]);
@@ -259,7 +270,7 @@ export const useRealtimeVoice = () => {
   }, []);
 
   return {
-    status, start, stop, mute,
+    status, start, stop, mute, commitSpeech,
     audioLevel, transcriptChunks, userTranscriptChunks,
     displayedMenuIds, cartItems, updateCartItem,
     isPaymentGuideVisible, triggerOrderComplete, tpm,

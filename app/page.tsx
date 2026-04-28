@@ -11,6 +11,7 @@ export default function Home() {
     status,
     start,
     stop,
+    commitSpeech,
     audioLevel,
     transcriptChunks,
     userTranscriptChunks,
@@ -58,6 +59,7 @@ export default function Home() {
           status={status}
           start={start}
           stop={stop}
+          commitSpeech={commitSpeech}
           audioLevel={audioLevel}
           transcriptChunks={transcriptChunks}
           userTranscriptChunks={userTranscriptChunks}

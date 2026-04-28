@@ -1,11 +1,13 @@
 "use client";
 
 import EyebrowSvg from "../../assets/eyebrow.svg";
+import EyeClosedSvg from "../../assets/eye_closed.svg";
 import PupilSvg from "../../assets/pupil.svg";
 
 interface Props {
   pupilX: number;
   pupilY: number;
+  isConnected: boolean;
 }
 
 const CalculateMovementPX = (
@@ -19,7 +21,15 @@ const X_MAXIMUM_MOVEMENT = 10;
 const Y_OFFSET_PX = -11.5;
 const Y_MAXIMUM_MOVEMENT = 5;
 
-const Eye = ({ pupilX = 0, pupilY = 0 }: Props) => {
+const Eye = ({ pupilX = 0, pupilY = 0, isConnected }: Props) => {
+  if (!isConnected) {
+    return (
+      <div className="relative">
+        <EyeClosedSvg />
+      </div>
+    );
+  }
+
   const clampedX = Math.max(-100, Math.min(100, pupilX));
   const clampedY = Math.max(-100, Math.min(100, pupilY));
 

@@ -7,10 +7,12 @@ import MouthArea from "../mouth";
 interface Props {
   audioLevel: number;
   pupilX: number;
+  pupilY: number;
   faceOffset: { x: number; y: number };
+  isConnected: boolean;
 }
 
-const Face = ({ audioLevel, pupilX, faceOffset }: Props) => {
+const Face = ({ audioLevel, pupilX, pupilY, faceOffset, isConnected }: Props) => {
   return (
     <div
       className="relative flex flex-col items-center"
@@ -38,12 +40,12 @@ const Face = ({ audioLevel, pupilX, faceOffset }: Props) => {
 
       {/* Eyes */}
       <div className="absolute top-[130px] flex gap-[112px] z-1">
-        <Eye pupilX={pupilX} pupilY={0} />
-        <Eye pupilX={pupilX} pupilY={0} />
+        <Eye pupilX={pupilX} pupilY={pupilY} isConnected={isConnected} />
+        <Eye pupilX={pupilX} pupilY={pupilY} isConnected={isConnected} />
       </div>
 
       {/* Mouth */}
-      <MouthArea audioLevel={audioLevel} />
+      <MouthArea audioLevel={audioLevel} isConnected={isConnected} />
     </div>
   );
 };

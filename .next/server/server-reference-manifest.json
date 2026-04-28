@@ -1,32 +1,5 @@
 {
-  "node": {
-    "00a96552af1931d55226570bbeaf6e9a788d50c307": {
-      "workers": {
-        "app/login/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fworkspaces%2Forderie%2Fapp%2Factions%2Fauth.ts%22%2C%5B%7B%22id%22%3A%2200a96552af1931d55226570bbeaf6e9a788d50c307%22%2C%22exportedName%22%3A%22logout%22%2C%22filename%22%3A%22app%2Factions%2Fauth.ts%22%7D%2C%7B%22id%22%3A%22600a8353d02da3941345393ac01943b32cf761e9ce%22%2C%22exportedName%22%3A%22login%22%2C%22filename%22%3A%22app%2Factions%2Fauth.ts%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        }
-      },
-      "layer": {
-        "app/login/page": "action-browser"
-      },
-      "filename": "app/actions/auth.ts",
-      "exportedName": "logout"
-    },
-    "600a8353d02da3941345393ac01943b32cf761e9ce": {
-      "workers": {
-        "app/login/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fworkspaces%2Forderie%2Fapp%2Factions%2Fauth.ts%22%2C%5B%7B%22id%22%3A%2200a96552af1931d55226570bbeaf6e9a788d50c307%22%2C%22exportedName%22%3A%22logout%22%2C%22filename%22%3A%22app%2Factions%2Fauth.ts%22%7D%2C%7B%22id%22%3A%22600a8353d02da3941345393ac01943b32cf761e9ce%22%2C%22exportedName%22%3A%22login%22%2C%22filename%22%3A%22app%2Factions%2Fauth.ts%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        }
-      },
-      "layer": {
-        "app/login/page": "action-browser"
-      },
-      "filename": "app/actions/auth.ts",
-      "exportedName": "login"
-    }
-  },
+  "node": {},
   "edge": {},
-  "encryptionKey": "jR62efVAOISCAF7Q+KmO84T0puhClEGpHcdInHr7ceM="
+  "encryptionKey": "qdvnhkJFUix/myjjnVgYAk+NQnelF+PWjBGY1fNDj7Y="
 }
