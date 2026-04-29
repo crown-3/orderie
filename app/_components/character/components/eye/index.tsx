@@ -3,11 +3,14 @@
 import EyebrowSvg from "../../assets/eyebrow.svg";
 import EyeClosedSvg from "../../assets/eye_closed.svg";
 import PupilSvg from "../../assets/pupil.svg";
+import WinkSvg from "../../assets/wink.svg";
 
 interface Props {
   pupilX: number;
   pupilY: number;
   isConnected: boolean;
+  isSleeping?: boolean;
+  isWinking?: boolean;
 }
 
 const CalculateMovementPX = (
@@ -21,11 +24,19 @@ const X_MAXIMUM_MOVEMENT = 10;
 const Y_OFFSET_PX = -11.5;
 const Y_MAXIMUM_MOVEMENT = 5;
 
-const Eye = ({ pupilX = 0, pupilY = 0, isConnected }: Props) => {
-  if (!isConnected) {
+const Eye = ({ pupilX = 0, pupilY = 0, isConnected, isSleeping = false, isWinking = false }: Props) => {
+  if (!isConnected || isSleeping) {
     return (
       <div className="relative">
         <EyeClosedSvg />
+      </div>
+    );
+  }
+
+  if (isWinking) {
+    return (
+      <div className="relative">
+        <WinkSvg />
       </div>
     );
   }

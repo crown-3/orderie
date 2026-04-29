@@ -27,6 +27,7 @@ export const useRealtimeVoice = () => {
   const [displayedMenuIds, setDisplayedMenuIds] = useState<string[]>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isPaymentGuideVisible, setIsPaymentGuideVisible] = useState(false);
+  const [presentationImage, setPresentationImage] = useState<string | null>(null);
   const [tpm, setTpm] = useState(0);
 
   const cartItemsRef = useRef<CartItem[]>([]);
@@ -49,9 +50,8 @@ export const useRealtimeVoice = () => {
       instructions,
       tools: createOrderingTools(
         cartItemsRef,
-        setDisplayedMenuIds,
         setCartItems,
-        setIsPaymentGuideVisible,
+        setPresentationImage,
         slog,
       ),
       voice: "coral",
@@ -224,6 +224,7 @@ export const useRealtimeVoice = () => {
     setDisplayedMenuIds([]);
     setCartItems([]);
     setIsPaymentGuideVisible(false);
+    setPresentationImage(null);
     tokenWindowRef.current = [];
     setTpm(0);
   }, [cleanup]);
@@ -274,6 +275,6 @@ export const useRealtimeVoice = () => {
     audioLevel, transcriptChunks, userTranscriptChunks,
     displayedMenuIds, cartItems, updateCartItem,
     isPaymentGuideVisible, triggerOrderComplete, tpm,
-    gateStatus,
+    gateStatus, presentationImage,
   };
 };

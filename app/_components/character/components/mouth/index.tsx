@@ -6,28 +6,30 @@ import MouthSvg from "../../assets/mouth.svg";
 interface Props {
   audioLevel: number;
   isConnected: boolean;
+  isSleeping?: boolean;
 }
 
 const SNORE_PERIOD_S = 4;
 const SNORE_MIN = 0.4;
 const SNORE_MAX = 0.8;
 
-const MouthArea = ({ audioLevel, isConnected }: Props) => {
+const MouthArea = ({ audioLevel, isConnected, isSleeping = false }: Props) => {
   const [snoreLevel, setSnoreLevel] = useState(0);
+  const shouldSnore = !isConnected || isSleeping;
 
   useEffect(() => {
-    if (isConnected) { setSnoreLevel(0); return; }
+    if (!shouldSnore) { setSnoreLevel(0); return; }
     const id = setInterval(() => {
       const t = Date.now() / 1000;
       setSnoreLevel(SNORE_MIN + ((Math.sin((t * Math.PI * 2) / SNORE_PERIOD_S) + 1) / 2) * (SNORE_MAX - SNORE_MIN));
     }, 100);
     return () => clearInterval(id);
-  }, [isConnected]);
+  }, [shouldSnore]);
 
-  const level = isConnected ? audioLevel : snoreLevel;
+  const level = shouldSnore ? snoreLevel : audioLevel;
   const mouthY = 150 + level * 60;
   const lipY = -59 + level * -6;
-  const transition = isConnected ? "transform 60ms linear" : "transform 400ms ease-in-out";
+  const transition = shouldSnore ? "transform 400ms ease-in-out" : "transform 60ms linear";
 
   return (
     <div className="-translate-y-[80px] flex flex-col items-center z-0">

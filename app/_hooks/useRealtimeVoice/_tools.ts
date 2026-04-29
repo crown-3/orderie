@@ -8,45 +8,22 @@ type Slog = (...args: unknown[]) => void;
 
 export function createOrderingTools(
   cartItemsRef: MutableRefObject<CartItem[]>,
-  setDisplayedMenuIds: (ids: string[]) => void,
   setCartItems: (items: CartItem[]) => void,
-  setIsPaymentGuideVisible: (v: boolean) => void,
+  setPresentationImage: (name: string | null) => void,
   slog: Slog,
 ) {
-  const setDisplayedMenusTool = tool({
-    name: "set_displayed_menus",
-    description:
-      "사용자가 메뉴를 언급하거나, 물어보거나, 추천을 요청할 때마다 반드시 호출하세요. 화면에 해당 메뉴 카드를 표시합니다. 메뉴 관련 답변을 하기 전에 이 도구를 먼저 호출해야 합니다. 관심 메뉴가 없어지면 빈 배열로 호출하세요.",
-    parameters: z.object({
-      menu_ids: z
-        .array(z.string())
-        .describe('표시할 메뉴 ID 배열 (예: ["b01", "s01"]). 없애려면 []'),
-    }),
-    execute: async ({ menu_ids }) => {
-      slog("[tool] set_displayed_menus", menu_ids);
-      startTransition(() => setDisplayedMenuIds(menu_ids));
-      return "displayed";
-    },
-  });
-
   const updateCartItemTool = tool({
     name: "update_cart_item",
     description:
-      "사용자가 메뉴를 주문 확정하거나 장바구니에서 빼고 싶을 때 호출합니다. quantity=0이면 해당 메뉴를 장바구니에서 제거합니다. 주문 확정 시 화면 초기화는 자동으로 처리되므로 set_displayed_menus([])를 별도로 호출하지 마세요. single_required 옵션 그룹이 있는 메뉴는 반드시 모든 필수 옵션을 확인한 뒤에만 호출하세요.",
+      "발표 중 주문 시연이 요청될 때 호출합니다. quantity=0이면 해당 메뉴를 장바구니에서 제거합니다.",
     parameters: z.object({
       menu_id: z.string().describe("메뉴 ID"),
       quantity: z.number().int().min(0).describe("수량. 0이면 장바구니에서 제거."),
       selected_options: z
         .array(z.string())
         .optional()
-        .describe(
-          '확정된 옵션 label 목록. 예: ["ICED", "라지(L)", "1샷 추가"]. single_required 그룹 옵션은 반드시 포함해야 합니다.',
-        ),
+        .describe('확정된 옵션 label 목록. 예: ["ICED", "라지(L)"]'),
     }),
-    // Cart updates must commit immediately — do NOT wrap in startTransition.
-    // startTransition makes updates interruptible; a stray urgent event
-    // (touch, click) could cause React to defer and eventually drop the update,
-    // leaving isCartMode false and the Stop button accidentally tappable.
     execute: async ({ menu_id, quantity, selected_options }) => {
       slog("[tool] update_cart_item", { menu_id, quantity, selected_options });
       const prev = cartItemsRef.current;
@@ -62,25 +39,37 @@ export function createOrderingTools(
         } else {
           next = [...prev, { id: menu_id, quantity, selectedOptions: selected_options }];
         }
-        // Auto-clear displayed menus when adding to cart.
-        startTransition(() => setDisplayedMenuIds([]));
       }
       setCartItems(next);
       return "cart_updated";
     },
   });
 
-  const showPaymentGuideTool = tool({
-    name: "show_payment_guide",
+  const showPresentationTool = tool({
+    name: "show_presentation",
     description:
-      "결제 단계로 진입하여 사용자에게 카드 투입구 위치를 시각적으로 안내합니다. 사용자가 결제를 결정했거나 결제 방법을 안내해야 할 때 반드시 호출하세요.",
-    parameters: z.object({}),
-    execute: async () => {
-      slog("[tool] show_payment_guide");
-      setIsPaymentGuideVisible(true);
-      return "payment_guide_shown";
+      "지정된 이미지를 오른쪽 화면에 표시합니다. 대본에 [show: imageName] 명령이 있을 때 말하기 직전에 호출하세요.",
+    parameters: z.object({
+      image_name: z.string().describe("표시할 이미지 이름 (예: ptImage-1)"),
+    }),
+    execute: async ({ image_name }) => {
+      slog("[tool] show_presentation", image_name);
+      startTransition(() => setPresentationImage(image_name));
+      return "presentation_shown";
     },
   });
 
-  return [setDisplayedMenusTool, updateCartItemTool, showPaymentGuideTool];
+  const closePresentationTool = tool({
+    name: "close_presentation",
+    description:
+      "화면을 기본 상태로 되돌립니다. 대본에 [close] 명령이 있을 때 호출하세요.",
+    parameters: z.object({}),
+    execute: async () => {
+      slog("[tool] close_presentation");
+      startTransition(() => setPresentationImage(null));
+      return "presentation_closed";
+    },
+  });
+
+  return [updateCartItemTool, showPresentationTool, closePresentationTool];
 }

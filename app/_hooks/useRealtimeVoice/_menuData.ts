@@ -1,28 +1,17 @@
-import instructionsMd from "@/assets/instructions.md";
+import presentationMd from "@/assets/presentation.md";
 import menusJson from "@/assets/menus.json";
 
 type MenuJson = typeof menusJson;
 
-// Strip fields that add tokens without helping ordering decisions:
-// - origin: rarely asked, not needed for order flow
-// - is_hot: implied by og_temp options availability
-// - option id/price_delta: AI only needs labels for selected_options
-const compactMenus = {
-  ...menusJson,
-  option_groups: menusJson.option_groups.map((og) => ({
-    id: og.id,
-    name: og.name,
-    type: og.type,
-    options: og.options.map((o) => ({
-      label: o.label,
-      ...(o.price_delta ? { price_delta: o.price_delta } : {}),
-    })),
-  })),
-  menus: (menusJson as MenuJson).menus.map(({ origin: _o, is_hot: _h, ...rest }) => rest),
-};
+// Minimal menu data: only id, name, and applicable_option_groups for update_cart_item.
+const minimalMenus = (menusJson as MenuJson).menus.map(({ id, name, applicable_option_groups }) => ({
+  id,
+  name,
+  applicable_option_groups,
+}));
 
-export const instructions = `${instructionsMd}
+export const instructions = `${presentationMd}
 
 ---
-## 메뉴 정보 (JSON)
-${JSON.stringify(compactMenus)}`;
+## 메뉴 데이터 (update_cart_item용)
+${JSON.stringify(minimalMenus)}`;

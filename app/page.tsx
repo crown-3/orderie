@@ -21,6 +21,7 @@ export default function Home() {
     isPaymentGuideVisible,
     triggerOrderComplete,
     tpm,
+    presentationImage,
   } = useRealtimeVoice();
 
   const [isOrdering, setIsOrdering] = useState(false);
@@ -73,6 +74,7 @@ export default function Home() {
         onOrder={handleOrder}
         isOrdering={isPaymentActive}
         isPaymentComplete={isPaymentComplete}
+        presentationImage={presentationImage}
       />
       <OverlaySection isVisible={isPaymentActive} tpm={tpm} />
     </main>

@@ -299,6 +299,9 @@
   .mt-7 {
     margin-top: calc(var(--spacing) * 7);
   }
+  .mt-auto {
+    margin-top: auto;
+  }
   .mr-6 {
     margin-right: calc(var(--spacing) * 6);
   }
@@ -386,6 +389,9 @@
   .w-\[50px\] {
     width: 50px;
   }
+  .w-\[50v\] {
+    width: 50v;
+  }
   .w-\[50vw\] {
     width: 50vw;
   }
@@ -406,6 +412,9 @@
   }
   .flex-1 {
     flex: 1;
+  }
+  .shrink-0 {
+    flex-shrink: 0;
   }
   .-translate-y-\[80px\] {
     --tw-translate-y: calc(80px * -1);
@@ -721,6 +730,9 @@
         color: color-mix(in oklab, var(--color-white) 30%, transparent);
       }
     }
+  }
+  .opacity-50 {
+    opacity: 50%;
   }
   .blur-\[50px\] {
     --tw-blur: blur(50px);

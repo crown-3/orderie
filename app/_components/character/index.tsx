@@ -69,10 +69,25 @@ const CharacterSection = ({
   const isActive = status === "connected" || status === "connecting";
 
   const [arrowKeys, setArrowKeys] = useState<Set<string>>(new Set());
+  const [isSleeping, setIsSleeping] = useState(false);
+  const [isWinking, setIsWinking] = useState(false);
+  const winkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "a" && status === "connected") commitSpeech();
+      if (e.key === "k") setIsSleeping(true);
+      if (e.key === "l") setIsSleeping(false);
+      if (e.key === "j") {
+        if (winkTimerRef.current) clearTimeout(winkTimerRef.current);
+        setIsWinking(true);
+        const audio = new Audio("/bell.mp3");
+        audio.play().catch(() => {});
+        winkTimerRef.current = setTimeout(() => {
+          setIsWinking(false);
+          winkTimerRef.current = null;
+        }, 600);
+      }
       if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
         e.preventDefault();
         setArrowKeys((prev) => new Set([...prev, e.key]));
@@ -90,6 +105,8 @@ const CharacterSection = ({
       window.removeEventListener("keyup", onKeyUp);
     };
   }, [status, commitSpeech]);
+
+  useEffect(() => () => { if (winkTimerRef.current) clearTimeout(winkTimerRef.current); }, []);
 
   const anyArrow = arrowKeys.size > 0;
   const pupilX = anyArrow
@@ -154,10 +171,10 @@ const CharacterSection = ({
             onClick={status === "connecting" ? undefined : isActive ? stop : start}
             className={status === "connecting" ? "cursor-not-allowed" : "cursor-pointer"}
           >
-            <Face audioLevel={audioLevel} pupilX={pupilX} pupilY={pupilY} faceOffset={faceOffset} isConnected={status === "connected"} />
+            <Face audioLevel={audioLevel} pupilX={pupilX} pupilY={pupilY} faceOffset={faceOffset} isConnected={status === "connected"} isSleeping={isSleeping} isWinking={isWinking} />
           </div>
 
-          {status === "idle" && (
+          {(status === "idle" || isSleeping) && (
             <>
               {[
                 { label: "z", size: 22, delay: 0 },
