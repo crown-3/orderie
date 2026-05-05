@@ -38,15 +38,30 @@ function useTranscriptDisplay(chunks: string[], fadeMs = 500) {
   return { display, fading };
 }
 
+const IS_PTT                    = process.env.NEXT_PUBLIC_INPUT_MODE === "ptt";
+const IS_DEBUG                  = process.env.NEXT_PUBLIC_DEBUG === "true";
+const DISABLE_USER_TRANSCRIPT   = process.env.NEXT_PUBLIC_DISABLE_USER_TRANSCRIPT === "true";
+const KEY_COMMIT   = process.env.NEXT_PUBLIC_KEY_COMMIT   ?? "a";
+const KEY_SLEEP    = process.env.NEXT_PUBLIC_KEY_SLEEP    ?? "k";
+const KEY_WAKE     = process.env.NEXT_PUBLIC_KEY_WAKE     ?? "l";
+const KEY_WINK     = process.env.NEXT_PUBLIC_KEY_WINK     ?? "j";
+const KEY_CENTER   = process.env.NEXT_PUBLIC_KEY_CENTER   ?? "c";
+const KEY_PT_PREV  = process.env.NEXT_PUBLIC_KEY_PT_PREV  ?? "d";
+const KEY_PT_NEXT  = process.env.NEXT_PUBLIC_KEY_PT_NEXT  ?? "f";
+const KEY_PT_CLOSE = process.env.NEXT_PUBLIC_KEY_PT_CLOSE ?? "x";
+
 interface CharacterSectionProps {
   status: VoiceStatus;
   start: () => void;
   stop: () => void;
+  mute: (muted: boolean) => void;
   commitSpeech: () => void;
+  setTranscriptEnabled: (enabled: boolean) => void;
   audioLevel: number;
   transcriptChunks: string[];
   userTranscriptChunks: string[];
   isCartMode: boolean;
+  onPresentationNavigate?: (dir: "prev" | "next" | "close") => void;
 }
 
 // line-height for leading-tight (1.25) at each font size, × 4 lines
@@ -59,26 +74,80 @@ const CharacterSection = ({
   status,
   start,
   stop,
+  mute,
   commitSpeech,
+  setTranscriptEnabled,
   audioLevel,
   transcriptChunks,
   userTranscriptChunks,
   isCartMode,
+  onPresentationNavigate,
 }: CharacterSectionProps) => {
-  const { faceOffset, pupilX: idlePupilX } = useIdleAnimation();
+  const { faceOffset } = useIdleAnimation();
   const isActive = status === "connected" || status === "connecting";
 
-  const [arrowKeys, setArrowKeys] = useState<Set<string>>(new Set());
+  const [pupilX, setPupilX] = useState(0);
+  const [pupilY, setPupilY] = useState(0);
   const [isSleeping, setIsSleeping] = useState(false);
   const [isWinking, setIsWinking] = useState(false);
   const winkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [debugToast, setDebugToast] = useState<{ key: string; desc: string; id: number } | null>(null);
+  const [toastFading, setToastFading] = useState(false);
+  const debugTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debugFadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function showDebugToast(key: string, desc: string) {
+    if (!IS_DEBUG) return;
+    if (debugTimerRef.current) clearTimeout(debugTimerRef.current);
+    if (debugFadeTimerRef.current) clearTimeout(debugFadeTimerRef.current);
+    setToastFading(false);
+    setDebugToast({ key, desc, id: Date.now() });
+    debugTimerRef.current = setTimeout(() => {
+      setToastFading(true);
+      debugFadeTimerRef.current = setTimeout(() => {
+        setDebugToast(null);
+        setToastFading(false);
+      }, 500);
+    }, 2000);
+  }
+
+  // In PTT mode, mute mic and disable STT as soon as the session is ready.
+  // When user transcript is disabled, also suppress STT regardless of input mode.
+  useEffect(() => {
+    if (status === "connected") {
+      if (IS_PTT) {
+        mute(true);
+        setTranscriptEnabled(false);
+      } else if (DISABLE_USER_TRANSCRIPT) {
+        setTranscriptEnabled(false);
+      }
+    }
+  }, [status, mute, setTranscriptEnabled]);
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "a" && status === "connected") commitSpeech();
-      if (e.key === "k") setIsSleeping(true);
-      if (e.key === "l") setIsSleeping(false);
-      if (e.key === "j") {
+      if (e.key === KEY_COMMIT && status === "connected") {
+        if (IS_PTT) {
+          if (!e.repeat) {
+            mute(false);
+            if (!DISABLE_USER_TRANSCRIPT) setTranscriptEnabled(true);
+            showDebugToast(KEY_COMMIT.toUpperCase(), "말하는 중...");
+          }
+        } else {
+          commitSpeech();
+          if (!e.repeat) showDebugToast(KEY_COMMIT.toUpperCase(), "AI 즉시 응답");
+        }
+      }
+      if (e.key === KEY_SLEEP) {
+        setIsSleeping(true);
+        if (!e.repeat) showDebugToast(KEY_SLEEP.toUpperCase(), "수면 모드 켜기");
+      }
+      if (e.key === KEY_WAKE) {
+        setIsSleeping(false);
+        if (!e.repeat) showDebugToast(KEY_WAKE.toUpperCase(), "수면 모드 끄기");
+      }
+      if (e.key === KEY_WINK) {
         if (winkTimerRef.current) clearTimeout(winkTimerRef.current);
         setIsWinking(true);
         const audio = new Audio("/bell.mp3");
@@ -87,15 +156,44 @@ const CharacterSection = ({
           setIsWinking(false);
           winkTimerRef.current = null;
         }, 600);
+        if (!e.repeat) showDebugToast(KEY_WINK.toUpperCase(), "윙크");
+      }
+      if (e.key === KEY_CENTER) {
+        setPupilX(0);
+        setPupilY(0);
+        if (!e.repeat) showDebugToast(KEY_CENTER.toUpperCase(), "시선 정면");
+      }
+      if (e.key === KEY_PT_PREV) {
+        if (!e.repeat) { onPresentationNavigate?.("prev"); showDebugToast(KEY_PT_PREV.toUpperCase(), "이전 슬라이드"); }
+      }
+      if (e.key === KEY_PT_NEXT) {
+        if (!e.repeat) { onPresentationNavigate?.("next"); showDebugToast(KEY_PT_NEXT.toUpperCase(), "다음 슬라이드"); }
+      }
+      if (e.key === KEY_PT_CLOSE) {
+        if (!e.repeat) { onPresentationNavigate?.("close"); showDebugToast(KEY_PT_CLOSE.toUpperCase(), "슬라이드 닫기"); }
       }
       if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
         e.preventDefault();
-        setArrowKeys((prev) => new Set([...prev, e.key]));
+        if (!e.repeat) {
+          const dirMap: Record<string, [number, number, string, string]> = {
+            ArrowLeft:  [-100,    0, "←", "시선 왼쪽"],
+            ArrowRight: [ 100,    0, "→", "시선 오른쪽"],
+            ArrowUp:    [   0, -100, "↑", "시선 위"],
+            ArrowDown:  [   0,  100, "↓", "시선 아래"],
+          };
+          const [dx, dy, k, d] = dirMap[e.key];
+          setPupilX(dx);
+          setPupilY(dy);
+          showDebugToast(k, d);
+        }
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
-      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
-        setArrowKeys((prev) => { const next = new Set(prev); next.delete(e.key); return next; });
+      if (e.key === KEY_COMMIT && IS_PTT && status === "connected") {
+        commitSpeech();
+        mute(true);
+        setTranscriptEnabled(false);
+        showDebugToast(KEY_COMMIT.toUpperCase(), "AI 응답 중...");
       }
     };
     window.addEventListener("keydown", onKeyDown);
@@ -104,17 +202,13 @@ const CharacterSection = ({
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [status, commitSpeech]);
+  }, [status, commitSpeech, mute, setTranscriptEnabled]);
 
-  useEffect(() => () => { if (winkTimerRef.current) clearTimeout(winkTimerRef.current); }, []);
-
-  const anyArrow = arrowKeys.size > 0;
-  const pupilX = anyArrow
-    ? (arrowKeys.has("ArrowRight") ? 100 : arrowKeys.has("ArrowLeft") ? -100 : 0)
-    : idlePupilX;
-  const pupilY = anyArrow
-    ? (arrowKeys.has("ArrowDown") ? 100 : arrowKeys.has("ArrowUp") ? -100 : 0)
-    : 0;
+  useEffect(() => () => {
+    if (winkTimerRef.current) clearTimeout(winkTimerRef.current);
+    if (debugTimerRef.current) clearTimeout(debugTimerRef.current);
+    if (debugFadeTimerRef.current) clearTimeout(debugFadeTimerRef.current);
+  }, []);
 
   const { display: aiDisplay, fading: aiFading } = useTranscriptDisplay(transcriptChunks);
   const { display: userDisplay, fading: userFading } = useTranscriptDisplay(userTranscriptChunks);
@@ -234,6 +328,19 @@ const CharacterSection = ({
                 {userDisplay.join("")}
               </p>
             </div>
+          </div>
+        </div>
+      )}
+      {debugToast && (
+        <div
+          key={debugToast.id}
+          className={`fixed bottom-10 left-1/2 -translate-x-1/2 z-50 pointer-events-none whitespace-nowrap ${toastFading ? "animate-fade-out" : ""}`}
+        >
+          <div className="bg-black/80 text-white px-5 py-3 rounded-2xl font-bold backdrop-blur-md flex items-center gap-3 shadow-2xl">
+            <kbd className="bg-white/20 border border-white/30 px-3 py-1 rounded-lg font-mono text-xl min-w-[2.5rem] text-center">
+              {debugToast.key}
+            </kbd>
+            <span className="text-xl">{debugToast.desc}</span>
           </div>
         </div>
       )}

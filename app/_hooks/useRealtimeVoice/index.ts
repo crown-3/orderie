@@ -17,8 +17,8 @@ const slog = (...args: unknown[]) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ args }),
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 };
 
 export const useRealtimeVoice = () => {
@@ -38,7 +38,7 @@ export const useRealtimeVoice = () => {
   const sessionRef = useRef<RealtimeSession | null>(null);
   const audioElRef = useRef<HTMLAudioElement | null>(null);
 
-  const { userTranscriptChunks, onSpeechStarted, start: startSTT, stop: stopSTT } = useSonioxSTT();
+  const { userTranscriptChunks, onSpeechStarted, setTranscriptEnabled, start: startSTT, stop: stopSTT } = useSonioxSTT();
   const { audioLevel, start: startAnalyser, stop: stopAnalyser } = useAudioLevel(cartItemsRef);
   const { gateStatus, start: startGate, stop: stopGate } = useSpeakerGate();
 
@@ -128,9 +128,16 @@ export const useRealtimeVoice = () => {
         },
       });
 
+      const IS_PTT = process.env.NEXT_PUBLIC_INPUT_MODE === "ptt";
       const session = new RealtimeSession(agentRef.current!, {
         transport,
-        config: { audio: { input: { turnDetection: { type: "server_vad", silence_duration_ms: 600 } } } },
+        config: {
+          audio: {
+            input: {
+              turnDetection: IS_PTT ? null : { type: "server_vad", silence_duration_ms: 600 },
+            },
+          },
+        },
       });
       sessionRef.current = session;
 
@@ -271,10 +278,10 @@ export const useRealtimeVoice = () => {
   }, []);
 
   return {
-    status, start, stop, mute, commitSpeech,
+    status, start, stop, mute, commitSpeech, setTranscriptEnabled,
     audioLevel, transcriptChunks, userTranscriptChunks,
     displayedMenuIds, cartItems, updateCartItem,
     isPaymentGuideVisible, triggerOrderComplete, tpm,
-    gateStatus, presentationImage,
+    gateStatus, presentationImage, setPresentationImage,
   };
 };

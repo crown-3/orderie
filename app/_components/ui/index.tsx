@@ -6,17 +6,9 @@ import Menu from "./components/menu";
 import menusJson from "@/assets/menus.json";
 import MenuImage from "@/assets/menuImages/coffee.jpg";
 import { CartItem } from "@/_hooks/useRealtimeVoice";
-import type { StaticImageData } from "next/image";
-
 import ClickIcon from "./assets/click.svg"
 import Image from "next/image";
-import ptImage1 from "@/assets/presentations/ptImage-1.png";
-import ptImage2 from "@/assets/presentations/ptImage-2.png";
-
-const PRESENTATION_IMAGES: Record<string, StaticImageData> = {
-  "ptImage-1": ptImage1,
-  "ptImage-2": ptImage2,
-};
+import { PRESENTATION_IMAGES } from "@/assets/presentations";
 
 interface Props {
   displayedMenuIds: string[];
@@ -60,11 +52,10 @@ const UISection = ({
 
   return (
     <section
-      className={`relative bg-[#000] flex flex-col items-center gap-3 ${
-        isCartMode || isPaymentComplete ? "overflow-y-auto w-[50vw] p-4"
-        : isPresentationMode ? "w-[50vw]"
-        : ""
-      }`}
+      className={`relative bg-[#000] flex flex-col items-center gap-3 ${isCartMode || isPaymentComplete ? "overflow-y-auto w-[50vw] p-4"
+          : isPresentationMode ? "w-[50vw]"
+            : ""
+        }`}
     >
       {/* All content fades out when payment completes */}
       <div

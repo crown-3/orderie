@@ -10,7 +10,9 @@ const minimalMenus = (menusJson as MenuJson).menus.map(({ id, name, applicable_o
   applicable_option_groups,
 }));
 
-export const instructions = `${presentationMd}
+const filteredMd = presentationMd.replace(/\{[\s\S]*?\}/g, "").replace(/\n{3,}/g, "\n\n").trim();
+
+export const instructions = `${filteredMd}
 
 ---
 ## 메뉴 데이터 (update_cart_item용)

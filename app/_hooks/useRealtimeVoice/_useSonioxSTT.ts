@@ -14,6 +14,18 @@ export function useSonioxSTT() {
   // Secondary defence on top of the audio-level voice gate.
   const mainSpeakerRef = useRef<number | null>(null);
 
+  const transcriptEnabledRef = useRef(true);
+
+  const setTranscriptEnabled = useCallback((enabled: boolean) => {
+    transcriptEnabledRef.current = enabled;
+    if (!enabled) {
+      fullTextRef.current = "";
+      speechStartBaseRef.current = 0;
+      utteranceAccumulatedRef.current = "";
+      setUserTranscriptChunks([]);
+    }
+  }, []);
+
   // Call when OpenAI VAD fires input_audio_buffer.speech_started.
   const onSpeechStarted = useCallback(() => {
     speechStartBaseRef.current = fullTextRef.current.length;
@@ -56,6 +68,7 @@ export function useSonioxSTT() {
     });
 
     ws.addEventListener("message", (evt) => {
+      if (!transcriptEnabledRef.current) return;
       const msg = JSON.parse(evt.data as string);
       if (!Array.isArray(msg.tokens)) return;
 
@@ -112,5 +125,5 @@ export function useSonioxSTT() {
     setUserTranscriptChunks([]);
   }, []);
 
-  return { userTranscriptChunks, onSpeechStarted, start, stop };
+  return { userTranscriptChunks, onSpeechStarted, setTranscriptEnabled, start, stop };
 }
