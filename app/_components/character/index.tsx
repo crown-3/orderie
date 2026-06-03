@@ -259,40 +259,38 @@ const CharacterSection = ({
         </div>
       )}
 
-      {!isCartMode && (
-        <div className="relative">
-          <div
-            onClick={status === "connecting" ? undefined : isActive ? stop : start}
-            className={status === "connecting" ? "cursor-not-allowed" : "cursor-pointer"}
-          >
-            <Face audioLevel={audioLevel} pupilX={pupilX} pupilY={pupilY} faceOffset={faceOffset} isConnected={status === "connected"} isSleeping={isSleeping} isWinking={isWinking} />
-          </div>
-
-          {(status === "idle" || isSleeping) && (
-            <>
-              {[
-                { label: "z", size: 22, delay: 0 },
-                { label: "Z", size: 36, delay: 1 },
-                { label: "Z", size: 52, delay: 2 },
-              ].map(({ label, size, delay }, i) => (
-                <span
-                  key={i}
-                  className="absolute pointer-events-none font-black text-white select-none"
-                  style={{
-                    fontSize: size,
-                    left: "65%",
-                    top: "10%",
-                    animation: `sleep-z 3s ${delay}s ease-in-out infinite`,
-                    opacity: 0,
-                  }}
-                >
-                  {label}
-                </span>
-              ))}
-            </>
-          )}
+      <div className="relative">
+        <div
+          onClick={status === "connecting" ? undefined : isActive ? stop : start}
+          className={status === "connecting" ? "cursor-not-allowed" : "cursor-pointer"}
+        >
+          <Face audioLevel={audioLevel} pupilX={pupilX} pupilY={pupilY} faceOffset={faceOffset} isConnected={status === "connected"} isSleeping={isSleeping} isWinking={isWinking} />
         </div>
-      )}
+
+        {(status === "idle" || isSleeping) && (
+          <>
+            {[
+              { label: "z", size: 22, delay: 0 },
+              { label: "Z", size: 36, delay: 1 },
+              { label: "Z", size: 52, delay: 2 },
+            ].map(({ label, size, delay }, i) => (
+              <span
+                key={i}
+                className="absolute pointer-events-none font-black text-white select-none"
+                style={{
+                  fontSize: size,
+                  left: "65%",
+                  top: "10%",
+                  animation: `sleep-z 3s ${delay}s ease-in-out infinite`,
+                  opacity: 0,
+                }}
+              >
+                {label}
+              </span>
+            ))}
+          </>
+        )}
+      </div>
 
       {userDisplay.length > 0 && (
         <div className={`absolute bottom-0 w-full h-[335px] flex flex-col justify-end items-end z-30 ${userFading ? "animate-fade-out" : ""}`}>

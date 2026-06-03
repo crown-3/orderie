@@ -11,7 +11,9 @@
       "WebFetch(domain:soniox.com)",
       "Bash(unlink:*)",
       "Bash(yarn add:*)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(xargs cat)",
+      "Bash(netstat -tlnp)"
     ]
   }
 }

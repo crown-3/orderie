@@ -829,6 +829,9 @@
     -webkit-user-select: none;
     user-select: none;
   }
+  .\[user\:close\] {
+    user: close;
+  }
   .focus\:border-white\/30 {
     &:focus {
       border-color: color-mix(in srgb, #fff 30%, transparent);
