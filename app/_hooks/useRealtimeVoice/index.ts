@@ -4,11 +4,11 @@ import { instructions } from "./_menuData";
 import { createOrderingTools } from "./_tools";
 import { useSonioxSTT } from "./_useSonioxSTT";
 import { useAudioLevel } from "./_useAudioLevel";
-import { useSpeakerGate } from "./_useSpeakerGate";
+import { buildScreenStateXml, type ScreenSnapshot } from "./_screenState";
+import { routeIntent } from "./_intentRouter";
 import type { VoiceStatus, CartItem } from "./_types";
-import type { GateStatus } from "./_useSpeakerGate";
 
-export type { VoiceStatus, CartItem, GateStatus };
+export type { VoiceStatus, CartItem };
 
 // Fire-and-forget server log — output appears in the Next.js terminal.
 const slog = (...args: unknown[]) => {
@@ -23,24 +23,55 @@ const slog = (...args: unknown[]) => {
 
 export const useRealtimeVoice = () => {
   const [status, setStatus] = useState<VoiceStatus>("idle");
+  const [isListening, setIsListening] = useState(false);
   const [transcriptChunks, setTranscriptChunks] = useState<string[]>([]);
   const [displayedMenuIds, setDisplayedMenuIds] = useState<string[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [optionMenuId, setOptionMenuId] = useState<string | null>(null);
+  // Live, not-yet-confirmed option labels shown in the option modal. Updated by
+  // both the AI (as it confirms each option) and manual chip taps.
+  const [optionSelection, setOptionSelection] = useState<string[]>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  // Cart visibility is explicit — adding an item no longer forces the cart open.
+  const [showCart, setShowCart] = useState(false);
   const [isPaymentGuideVisible, setIsPaymentGuideVisible] = useState(false);
-  const [presentationImage, setPresentationImage] = useState<string | null>(null);
-  const [tpm, setTpm] = useState(0);
 
   const cartItemsRef = useRef<CartItem[]>([]);
   cartItemsRef.current = cartItems;
-  const tokenWindowRef = useRef<Array<{ t: number; n: number }>>([]);
+
+  // Live snapshot of the whole screen, read on demand by the get_screen_state
+  // tool. Kept fresh synchronously on every render so a tool call mid-turn
+  // always sees the latest state (including manual taps).
+  const screenRef = useRef<ScreenSnapshot>({
+    optionMenuId: null,
+    optionSelection: [],
+    cartItems: [],
+    showCart: false,
+    paymentGuideVisible: false,
+    activeCategory: null,
+    displayedMenuIds: [],
+  });
+  screenRef.current = {
+    optionMenuId,
+    optionSelection,
+    cartItems,
+    showCart,
+    paymentGuideVisible: isPaymentGuideVisible,
+    activeCategory,
+    displayedMenuIds,
+  };
 
   const agentRef = useRef<RealtimeAgent | null>(null);
   const sessionRef = useRef<RealtimeSession | null>(null);
   const audioElRef = useRef<HTMLAudioElement | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
 
   const { userTranscriptChunks, onSpeechStarted, setTranscriptEnabled, start: startSTT, stop: stopSTT } = useSonioxSTT();
+
+  // Stores a Tier-1 quick reply (or "tier2") while we wait for the Realtime
+  // API's response.created event — at which point we cancel it and play our own TTS.
+  const pendingCancelRef = useRef<string | null>(null);
   const { audioLevel, start: startAnalyser, stop: stopAnalyser } = useAudioLevel(cartItemsRef);
-  const { gateStatus, start: startGate, stop: stopGate } = useSpeakerGate();
 
   // Create agent once on mount (after SSR — "use client" components still server-render).
   useEffect(() => {
@@ -48,12 +79,18 @@ export const useRealtimeVoice = () => {
     agentRef.current = new RealtimeAgent({
       name: "주문돌이",
       instructions,
-      tools: createOrderingTools(
+      tools: createOrderingTools({
         cartItemsRef,
+        screenRef,
         setCartItems,
-        setPresentationImage,
+        setDisplayedMenuIds,
+        setActiveCategory,
+        setOptionMenuId,
+        setOptionSelection,
+        setShowCart,
+        setPaymentGuideVisible: setIsPaymentGuideVisible,
         slog,
-      ),
+      }),
       voice: "coral",
     });
   }, []);
@@ -61,10 +98,12 @@ export const useRealtimeVoice = () => {
   const cleanup = useCallback(() => {
     stopAnalyser();
     stopSTT();
-    stopGate();
+    micStreamRef.current?.getTracks().forEach((t) => t.stop());
+    micStreamRef.current = null;
     audioElRef.current?.remove();
     audioElRef.current = null;
-  }, [stopAnalyser, stopSTT, stopGate]);
+    setIsListening(false);
+  }, [stopAnalyser, stopSTT]);
 
   const start = useCallback(async () => {
     if (!agentRef.current) return;
@@ -84,17 +123,17 @@ export const useRealtimeVoice = () => {
       const ephemeralKey: string = sessionData.value;
       const sonioxKey: string = sonioxData.api_key;
 
-      // Start the speaker gate: loads model, opens mic, returns gated stream.
-      // This must happen before the WebRTC transport is created so we can
-      // inject the gated track into the peer connection.
-      slog("[gate] starting speaker gate");
-      const gatedStream = await startGate();
-      const gatedTrack = gatedStream.getAudioTracks()[0];
-      slog("[gate] gated stream ready, enrolling speaker");
+      // Open one mic stream for the level analyser + Soniox STT. The Realtime
+      // SDK opens its own mic track for the WebRTC peer connection.
+      const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStreamRef.current = micStream;
 
       // Append a real DOM audio element so mobile browsers honour autoplay reliably.
       const audioEl = document.createElement("audio");
       audioEl.autoplay = true;
+      // Start muted — only unmuted when a Tier-3 or greeting response.created fires.
+      // This prevents any Realtime audio from leaking during Tier 1/2 turns.
+      audioEl.muted = true;
       document.body.appendChild(audioEl);
       audioElRef.current = audioEl;
       // Android Chrome can silently pause the audio element after a layout shift.
@@ -103,83 +142,77 @@ export const useRealtimeVoice = () => {
         if (sessionRef.current) audioEl.play().catch((err) => slog("[audio] resume failed:", String(err)));
       });
 
-      let resolveStream!: (s: MediaStream) => void;
-      const streamPromise = new Promise<MediaStream>((r) => { resolveStream = r; });
+      const transport = new OpenAIRealtimeWebRTC({ audioElement: audioEl });
 
-      const transport = new OpenAIRealtimeWebRTC({
-        audioElement: audioEl,
-        changePeerConnection: (pc) => {
-          // Intercept addTrack so the SDK's own getUserMedia track is replaced
-          // with our speaker-gated track before it reaches the peer connection.
-          const origAddTrack = pc.addTrack.bind(pc);
-          (pc as unknown as Record<string, unknown>).addTrack = (
-            track: MediaStreamTrack,
-            ...streams: MediaStream[]
-          ) => {
-            if (track.kind === "audio") {
-              slog("[gate] injecting gated audio track into PeerConnection");
-              track.stop(); // discard the SDK's own mic track
-              return origAddTrack(gatedTrack, gatedStream);
-            }
-            return origAddTrack(track, ...streams);
-          };
-          pc.addEventListener("track", (e) => { if (e.streams[0]) resolveStream(e.streams[0]); });
-          return pc;
-        },
-      });
-
-      const IS_PTT = process.env.NEXT_PUBLIC_INPUT_MODE === "ptt";
       const session = new RealtimeSession(agentRef.current!, {
         transport,
         config: {
+          // Hard ceiling on output (text + audio) tokens per response. Spoken
+          // replies should be 1–2 sentences anyway (see instructions.md); this
+          // is a backstop against runaway monologues that burn TPM. Spread into
+          // the wire session payload via providerData.
+          providerData: { max_output_tokens: 1200 },
           audio: {
             input: {
-              turnDetection: IS_PTT ? null : { type: "server_vad", silence_duration_ms: 600 },
+              // Natural turn-taking: the AI responds when the user stops
+              // speaking. A higher threshold ignores ambient noise so the
+              // "listening" indicator only fires on real speech.
+              turnDetection: {
+                type: "server_vad",
+                threshold: 0.65,
+                prefix_padding_ms: 300,
+                silence_duration_ms: 700,
+              },
             },
           },
         },
       });
       sessionRef.current = session;
 
+      const muteRealtime = () => { if (audioElRef.current) audioElRef.current.muted = true; };
+      const unmuteRealtime = () => { if (audioElRef.current) audioElRef.current.muted = false; };
+
       // --- Transport event listeners ---
       session.transport.on("input_audio_buffer.speech_started", () => {
         slog("[transport] speech_started");
+        setIsListening(true);
         onSpeechStarted();
       });
-      session.transport.on("input_audio_buffer.speech_stopped", () => slog("[transport] speech_stopped"));
+      session.transport.on("input_audio_buffer.speech_stopped", () => {
+        slog("[transport] speech_stopped");
+        setIsListening(false);
+      });
       session.transport.on("input_audio_buffer.committed", () => slog("[transport] audio_buffer_committed"));
       session.transport.on("turn_started", () => slog("[transport] turn_started"));
       session.transport.on("audio_transcript_delta", (event: { delta: string }) => {
-        slog("[transport] audio_transcript_delta", event.delta.slice(0, 30));
         setTranscriptChunks((prev) => [...prev, event.delta]);
       });
       session.transport.on("audio_transcript_done", () => slog("[transport] audio_transcript_done"));
       session.transport.on("audio_done", () => slog("[transport] audio_done"));
       session.transport.on("response.created", () => {
         slog("[transport] response.created — AI generating");
+        setIsListening(false);
         setTranscriptChunks([]);
+        if (pendingCancelRef.current !== null) {
+          // Tier 1/2: cancel the Realtime response; audio stays muted.
+          slog("[router] cancelling Realtime response for tier 1/2");
+          pendingCancelRef.current = null;
+          try { sessionRef.current?.transport.sendEvent({ type: "response.cancel" }); }
+          catch (e) { slog("[router] cancel failed:", String(e)); }
+        } else {
+          // Tier 3 or initial greeting: unmute so the user can hear it.
+          unmuteRealtime();
+        }
       });
       session.transport.on("response.done", (event: unknown) => {
-        type Usage = { input_tokens?: number; output_tokens?: number; input_token_details?: { cached_tokens?: number } };
-        const resp = (event as { response?: { status?: string; output?: unknown[]; status_details?: unknown; usage?: Usage } })?.response;
-        const usage = resp?.usage;
-        const inputTokens = usage?.input_tokens ?? 0;
-        const outputTokens = usage?.output_tokens ?? 0;
-        const cachedTokens = usage?.input_token_details?.cached_tokens ?? 0;
+        const resp = (event as { response?: { status?: string; output?: unknown[]; status_details?: unknown } })?.response;
         slog("[transport] response.done", {
           status: resp?.status,
           outputCount: resp?.output?.length ?? 0,
-          outputTypes: resp?.output?.map((o: unknown) => (o as { type?: string })?.type),
           status_details: resp?.status_details,
-          tokens: { input: inputTokens, output: outputTokens, cached: cachedTokens },
         });
-        const tokens = inputTokens + outputTokens;
-        if (tokens > 0) {
-          const now = Date.now();
-          tokenWindowRef.current = tokenWindowRef.current.filter((e) => e.t > now - 60_000);
-          tokenWindowRef.current.push({ t: now, n: tokens });
-          setTpm(tokenWindowRef.current.reduce((s, e) => s + e.n, 0));
-        }
+        // Re-arm mute so the next turn starts silent; response.created unmutes for Tier 3.
+        muteRealtime();
         if (resp?.status === "failed") {
           slog("[transport] response failed — retrying");
           try { sessionRef.current?.transport.sendEvent({ type: "response.create" }); }
@@ -207,9 +240,45 @@ export const useRealtimeVoice = () => {
       slog("[session] connected");
       setStatus("connected");
 
-      const stream = await streamPromise;
-      await startAnalyser(stream);
-      await startSTT(sonioxKey, gatedStream);
+      // Tier 1/2 TTS — plays pre-scripted or gpt-4o-mini reply via browser speech synthesis.
+      // Audio stays muted (owned by response.created / response.done cycle).
+      const speakBrowser = (text: string) => {
+        if (typeof speechSynthesis === "undefined") return;
+        speechSynthesis.cancel();
+        const utt = new SpeechSynthesisUtterance(text);
+        utt.lang = "ko-KR";
+        speechSynthesis.speak(utt);
+        setTranscriptChunks([text]);
+      };
+
+      await startAnalyser(micStream);
+      await startSTT(sonioxKey, micStream, {
+        // Audio is already muted by default. Just set pendingCancelRef so
+        // response.created knows to cancel and stay muted for this turn.
+        onFinalTranscript: (text) => {
+          const { tier, quickReply } = routeIntent(text);
+          slog("[router] tier:", tier, "text:", text);
+          if (tier === 1) {
+            pendingCancelRef.current = quickReply!;
+            speakBrowser(quickReply!);
+          } else if (tier === 2) {
+            pendingCancelRef.current = "tier2";
+            const screenXml = buildScreenStateXml(screenRef.current);
+            fetch("/api/chat", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ transcript: text, screenXml }),
+            })
+              .then((r) => r.json() as Promise<{ text: string }>)
+              .then(({ text: reply }) => speakBrowser(reply))
+              .catch((e) => {
+                slog("[tier2] fetch failed:", String(e));
+                pendingCancelRef.current = null;
+              });
+          }
+          // Tier 3: server_vad handles it — nothing to do here.
+        },
+      });
 
     } catch (err) {
       slog("[session] connection failed:", String(err));
@@ -217,7 +286,7 @@ export const useRealtimeVoice = () => {
       sessionRef.current = null;
       setStatus("error");
     }
-  }, [cleanup, onSpeechStarted, startAnalyser, startSTT, startGate]);
+  }, [cleanup, onSpeechStarted, startAnalyser, startSTT]);
 
   const stop = useCallback(() => {
     slog("[session] stop()");
@@ -229,11 +298,12 @@ export const useRealtimeVoice = () => {
     setStatus("idle");
     setTranscriptChunks([]);
     setDisplayedMenuIds([]);
+    setActiveCategory(null);
+    setOptionMenuId(null);
+    setOptionSelection([]);
     setCartItems([]);
+    setShowCart(false);
     setIsPaymentGuideVisible(false);
-    setPresentationImage(null);
-    tokenWindowRef.current = [];
-    setTpm(0);
   }, [cleanup]);
 
   const mute = useCallback((muted: boolean) => {
@@ -249,15 +319,38 @@ export const useRealtimeVoice = () => {
     });
   }, []);
 
-  const commitSpeech = useCallback(() => {
-    if (!sessionRef.current) return;
-    slog("[session] commitSpeech — manual turn end");
-    try {
-      sessionRef.current.transport.sendEvent({ type: "input_audio_buffer.commit" });
-      sessionRef.current.transport.sendEvent({ type: "response.create" });
-    } catch (e) {
-      slog("[session] commitSpeech failed:", String(e));
-    }
+  const clearCart = useCallback(() => {
+    setCartItems([]);
+    setShowCart(false);
+  }, []);
+
+  // Open the option modal for a menu, optionally pre-checking known options.
+  const openOptions = useCallback((id: string, preset?: string[]) => {
+    setOptionMenuId(id);
+    setOptionSelection(preset ?? []);
+  }, []);
+
+  const closeOptions = useCallback(() => {
+    setOptionMenuId(null);
+    setOptionSelection([]);
+  }, []);
+
+  // Add a configured item (with its chosen options) to the cart, then close the
+  // option modal. Adding does NOT switch to the cart view.
+  const addConfiguredItem = useCallback((id: string, options: string[], quantity = 1) => {
+    setCartItems((prev) => {
+      const exists = prev.find((i) => i.id === id);
+      if (exists) {
+        return prev.map((i) =>
+          i.id === id
+            ? { ...i, quantity: i.quantity + quantity, selectedOptions: options }
+            : i,
+        );
+      }
+      return [...prev, { id, quantity, selectedOptions: options }];
+    });
+    setOptionMenuId(null);
+    setOptionSelection([]);
   }, []);
 
   const triggerOrderComplete = useCallback(() => {
@@ -278,10 +371,12 @@ export const useRealtimeVoice = () => {
   }, []);
 
   return {
-    status, start, stop, mute, commitSpeech, setTranscriptEnabled,
+    status, isListening, start, stop, mute, setTranscriptEnabled,
     audioLevel, transcriptChunks, userTranscriptChunks,
-    displayedMenuIds, cartItems, updateCartItem,
-    isPaymentGuideVisible, triggerOrderComplete, tpm,
-    gateStatus, presentationImage, setPresentationImage,
+    displayedMenuIds, activeCategory, setActiveCategory,
+    optionMenuId, optionSelection, setOptionSelection, openOptions, closeOptions,
+    cartItems, updateCartItem, addConfiguredItem, clearCart,
+    showCart, setShowCart,
+    isPaymentGuideVisible, setIsPaymentGuideVisible, triggerOrderComplete,
   };
 };

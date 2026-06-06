@@ -12,9 +12,6 @@ const nextConfig: NextConfig = {
       ],
     },
   },
-  // Keep heavy ONNX/transformers packages out of the webpack bundle;
-  // they are only used in Node.js API routes.
-  serverExternalPackages: ["@huggingface/transformers", "onnxruntime-node"],
   webpack(config) {
     // Make @svgr/webpack handle .svg files, returning them as React components
     config.module.rules.push({

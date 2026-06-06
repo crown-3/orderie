@@ -1,8 +1,20 @@
 @import "tailwindcss";
 
+/* mowiki design tokens — expose as Tailwind utilities (text-brand, bg-brand, …) */
+@theme {
+  --color-brand: #159bee;
+  --color-brand-deep: #2589c7;
+  --color-ink: #282828;
+  --color-price: #ff4343;
+
+  --font-logo: "Pacifico", cursive;
+}
+
 @layer base {
   body {
     font-family: "Noto Sans KR", sans-serif;
+    background: #ffffff;
+    color: var(--color-ink);
   }
 }
 
@@ -14,24 +26,6 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes fade-top-to-bottom {
-  from {
-    clip-path: inset(0 0 100% 0);
-  }
-  to {
-    clip-path: inset(0 0 0% 0);
-  }
-}
-
-@keyframes fade-bottom-to-top {
-  from {
-    clip-path: inset(100% 0 0 0);
-  }
-  to {
-    clip-path: inset(0% 0 0 0);
   }
 }
 
@@ -47,24 +41,28 @@
 }
 
 @keyframes fade-out {
-  from { opacity: 1; }
-  to   { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
-@keyframes sleep-z {
-  0%   { transform: translate(0, 0)           rotate(-10deg) scale(0.8); opacity: 0; }
-  15%  { opacity: 1; }
-  85%  { opacity: 0.8; }
-  100% { transform: translate(100px, -130px)  rotate(15deg)  scale(1.3); opacity: 0; }
+/* Soft pulse for the listening mic indicator */
+@keyframes mic-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.15;
+  }
 }
 
 @layer utilities {
-  .animate-fade-top-to-bottom {
-    animation: fade-top-to-bottom 0.5s ease-out both;
-  }
-  .animate-fade-bottom-to-top {
-    animation: fade-bottom-to-top 0.5s ease-out both;
-  }
   .animate-text-slide-fade-in {
     animation: text-slide-fade-in 0.2s ease-out both;
   }
@@ -73,5 +71,8 @@
   }
   .animate-fade-out {
     animation: fade-out 0.5s ease-out both;
+  }
+  .animate-mic-pulse {
+    animation: mic-pulse 1.6s ease-in-out infinite;
   }
 }

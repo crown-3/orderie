@@ -33,12 +33,26 @@ export function useSonioxSTT() {
     setUserTranscriptChunks([]);
   }, []);
 
+  // Tracks whether we're mid-utterance so we can fire onSpeechStart exactly once
+  // per utterance (mirrors server_vad speech_started, but driven by Soniox tokens).
+  const isSpeakingRef = useRef(false);
+
   /**
-   * @param apiKey  Soniox API key
-   * @param stream  Already-gated MediaStream from useSpeakerGate.
-   *                The gate owns the mic track lifecycle; we do not stop it here.
+   * @param apiKey     Soniox API key
+   * @param stream     Shared mic MediaStream. Its track lifecycle is owned by the
+   *                   caller (useRealtimeVoice); we do not stop it here.
+   * @param callbacks  Optional hooks for speech lifecycle and final transcript.
+   *                   - onSpeechStart: fires when the first real token of a new utterance arrives.
+   *                   - onFinalTranscript: fires with the complete utterance text when <fin> is received.
    */
-  const start = useCallback(async (apiKey: string, stream: MediaStream) => {
+  const start = useCallback(async (
+    apiKey: string,
+    stream: MediaStream,
+    callbacks?: {
+      onSpeechStart?: () => void;
+      onFinalTranscript?: (text: string) => void;
+    },
+  ) => {
     fullTextRef.current = "";
     speechStartBaseRef.current = 0;
     utteranceAccumulatedRef.current = "";
@@ -92,15 +106,25 @@ export function useSonioxSTT() {
           : tokens;
 
       const hasFin = relevantTokens.some((t) => t.text === "<fin>");
+      const hasRealTokens = relevantTokens.some((t) => t.text !== "<end>" && t.text !== "<fin>");
       const fullText = relevantTokens
         .filter((t) => t.text !== "<end>" && t.text !== "<fin>")
         .map((t) => t.text)
         .join("");
 
+      // Fire onSpeechStart on the first real token of a new utterance.
+      if (hasRealTokens && !isSpeakingRef.current) {
+        isSpeakingRef.current = true;
+        callbacks?.onSpeechStart?.();
+      }
+
       if (hasFin) {
+        const finalText = (utteranceAccumulatedRef.current + fullText.slice(speechStartBaseRef.current)).trim();
         utteranceAccumulatedRef.current += fullText.slice(speechStartBaseRef.current);
         speechStartBaseRef.current = 0;
         fullTextRef.current = "";
+        isSpeakingRef.current = false;
+        if (finalText) callbacks?.onFinalTranscript?.(finalText);
       } else {
         fullTextRef.current = fullText;
       }
@@ -117,11 +141,12 @@ export function useSonioxSTT() {
     mediaRecorderRef.current = null;
     wsRef.current?.close();
     wsRef.current = null;
-    // Note: mic stream lifecycle is owned by useSpeakerGate — not stopped here.
+    // Note: mic stream lifecycle is owned by useRealtimeVoice — not stopped here.
     fullTextRef.current = "";
     speechStartBaseRef.current = 0;
     utteranceAccumulatedRef.current = "";
     mainSpeakerRef.current = null;
+    isSpeakingRef.current = false;
     setUserTranscriptChunks([]);
   }, []);
 

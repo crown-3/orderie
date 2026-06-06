@@ -13,7 +13,18 @@
       "Bash(yarn add:*)",
       "Bash(npx tsc *)",
       "Bash(xargs cat)",
-      "Bash(netstat -tlnp)"
+      "Bash(netstat -tlnp)",
+      "mcp__figma__get_screenshot",
+      "mcp__figma__get_metadata",
+      "Bash(curl -s -o /tmp/figma_overview.png \"https://www.figma.com/api/mcp/asset/8d9c0ece-114f-45ed-957f-a9575b693d97\")",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o main_default.png \"https://www.figma.com/api/mcp/asset/1821cae7-8d2c-474a-9d57-ab810aeb1fa7\")",
+      "Bash(curl -s -o main_listening.png \"https://www.figma.com/api/mcp/asset/31ae4558-439b-49c9-a416-87076874ef9c\")",
+      "Bash(curl -s -o main_qa.png \"https://www.figma.com/api/mcp/asset/18632800-b169-4f12-b59c-91db29a0135a\")",
+      "Bash(curl -s -o main_options.png \"https://www.figma.com/api/mcp/asset/5b1b7139-55b1-4316-8d10-26d3c4f0f8a8\")",
+      "Bash(curl -s -o cart.png \"https://www.figma.com/api/mcp/asset/69534ca2-c9af-4d70-ab5a-5ae63907b041\")",
+      "mcp__figma__get_variable_defs",
+      "mcp__figma__get_design_context"
     ]
   }
 }
