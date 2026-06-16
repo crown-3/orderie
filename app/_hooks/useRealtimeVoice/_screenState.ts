@@ -22,7 +22,6 @@ export interface ScreenSnapshot {
   showCart: boolean;
   paymentGuideVisible: boolean;
   activeCategory: string | null;
-  displayedMenuIds: string[];
 }
 
 const esc = (s: string) =>
@@ -59,10 +58,7 @@ function cartXml(items: CartItem[]): string {
 /** The 3-column product grid, with explicit positions so "오른쪽 제일 위" resolves. */
 function gridXml(s: ScreenSnapshot): string {
   const category = s.activeCategory ?? CATEGORIES[0];
-  const highlighting = s.displayedMenuIds.length > 0;
-  const menus: Menu[] = highlighting
-    ? s.displayedMenuIds.map(getMenu).filter((m): m is Menu => Boolean(m))
-    : menusByCategory(category);
+  const menus: Menu[] = menusByCategory(category);
 
   const cards = menus
     .map((m, i) => {
@@ -72,8 +68,7 @@ function gridXml(s: ScreenSnapshot): string {
     })
     .join("\n");
 
-  const hl = highlighting ? ' highlighted="true"' : "";
-  return `  <grid cols="3" category="${esc(category)}"${hl}>\n${cards}\n  </grid>`;
+  return `  <grid cols="3" category="${esc(category)}">\n${cards}\n  </grid>`;
 }
 
 /** The option modal: every group + option, with which are currently checked. */

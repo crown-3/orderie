@@ -13,7 +13,6 @@ export default function Home() {
     audioLevel,
     transcriptChunks,
     userTranscriptChunks,
-    displayedMenuIds,
     activeCategory,
     setActiveCategory,
     optionMenuId,
@@ -87,7 +86,6 @@ export default function Home() {
       audioLevel={audioLevel}
       aiTranscript={transcriptChunks.join("")}
       userTranscript={userTranscriptChunks.join("")}
-      displayedMenuIds={displayedMenuIds}
       activeCategory={activeCategory}
       onSelectCategory={setActiveCategory}
       onSelectMenu={(id) => openOptions(id)}

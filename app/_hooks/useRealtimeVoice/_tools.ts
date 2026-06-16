@@ -13,7 +13,6 @@ interface ToolDeps {
   /** Live snapshot of the whole screen, read on demand by get_screen_state. */
   screenRef: MutableRefObject<ScreenSnapshot>;
   setCartItems: (items: CartItem[]) => void;
-  setDisplayedMenuIds: (ids: string[]) => void;
   setActiveCategory: (category: string | null) => void;
   setOptionMenuId: (id: string | null) => void;
   setOptionSelection: (labels: string[]) => void;
@@ -26,7 +25,6 @@ export function createOrderingTools({
   cartItemsRef,
   screenRef,
   setCartItems,
-  setDisplayedMenuIds,
   setActiveCategory,
   setOptionMenuId,
   setOptionSelection,
@@ -38,7 +36,7 @@ export function createOrderingTools({
   const setActiveCategoryTool = tool({
     name: "set_active_category",
     description:
-      "화면 상단의 카테고리 탭을 전환하고 해당 카테고리의 메뉴를 그리드에 표시합니다. 특정 메뉴만 강조할 때는 set_displayed_menus를 사용하세요.",
+      "화면 상단의 카테고리 탭을 전환하고 해당 카테고리의 메뉴를 그리드에 표시합니다.",
     parameters: z.object({
       category: z
         .string()
@@ -46,26 +44,8 @@ export function createOrderingTools({
     }),
     execute: async ({ category }) => {
       slog("[tool] set_active_category", category);
-      startTransition(() => {
-        setActiveCategory(category);
-        setDisplayedMenuIds([]); // clear any highlight so the full category shows
-      });
+      startTransition(() => setActiveCategory(category));
       return "category_set";
-    },
-  });
-
-  // Highlight a specific set of menu cards (e.g. when recommending items).
-  const setDisplayedMenusTool = tool({
-    name: "set_displayed_menus",
-    description:
-      "화면에 강조 표시할 메뉴 카드를 지정합니다. 응답 텍스트 출력 전에 호출하세요. 한 번에 최대 6개. 빈 배열을 전달하면 강조를 해제합니다.",
-    parameters: z.object({
-      id_list: z.array(z.string()).describe("강조할 메뉴 id 목록 (최대 6개)"),
-    }),
-    execute: async ({ id_list }) => {
-      slog("[tool] set_displayed_menus", id_list);
-      startTransition(() => setDisplayedMenuIds(id_list.slice(0, 6)));
-      return "menus_displayed";
     },
   });
 
@@ -125,7 +105,7 @@ export function createOrderingTools({
   const updateCartItemTool = tool({
     name: "update_cart_item",
     description:
-      "사용자가 메뉴를 장바구니에 담기로 확정하면 호출합니다. quantity=0이면 해당 메뉴를 제거합니다. 호출 시 옵션 선택 화면은 자동으로 닫히지만, 장바구니 화면으로 자동 전환되지는 않습니다. 담은 뒤에는 '더 주문하시겠어요, 아니면 결제하시겠어요?'라고 물어보세요.",
+      "사용자가 메뉴를 장바구니에 담기로 확정하면 호출합니다. quantity=0이면 해당 메뉴를 제거합니다. 호출 시 옵션 선택 화면은 자동으로 닫히지만, 장바구니 화면으로 자동 전환되지는 않습니다.",
     parameters: z.object({
       menu_id: z.string().describe("메뉴 ID"),
       quantity: z.number().int().min(0).describe("수량. 0이면 장바구니에서 제거."),
@@ -205,7 +185,6 @@ export function createOrderingTools({
 
   return [
     setActiveCategoryTool,
-    setDisplayedMenusTool,
     showOptionsTool,
     closeOptionsTool,
     openCartTool,

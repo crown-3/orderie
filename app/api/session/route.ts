@@ -8,7 +8,7 @@ export async function POST() {
     const session = await openai.realtime.clientSecrets.create({
       session: {
         type: "realtime",
-        model: "gpt-realtime-mini",
+        model: "gpt-realtime",
       },
     });
     return NextResponse.json(session);

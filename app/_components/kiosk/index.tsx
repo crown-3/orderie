@@ -18,7 +18,6 @@ interface Props {
   aiTranscript: string;
   /** User's latest spoken utterance. */
   userTranscript: string;
-  displayedMenuIds: string[];
   activeCategory: string | null;
   onSelectCategory: (category: string) => void;
   /** Tapping a menu card opens its option/confirm modal. */
@@ -55,7 +54,6 @@ const KioskScreen = ({
   audioLevel,
   aiTranscript,
   userTranscript,
-  displayedMenuIds,
   activeCategory,
   onSelectCategory,
   onSelectMenu,
@@ -117,7 +115,6 @@ const KioskScreen = ({
             onSelect={onSelectCategory}
           />
           <MenuGrid
-            displayedMenuIds={displayedMenuIds}
             activeCategory={activeCategory}
             onSelectMenu={onSelectMenu}
           />
